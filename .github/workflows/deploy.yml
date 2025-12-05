@@ -1,0 +1,57 @@
+name: Deploy
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install frontend deps
+        working-directory: frontend
+        run: npm ci
+
+      - name: Build frontend
+        working-directory: frontend
+        run: npm run build
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION || 'us-east-1' }}
+
+      - name: Sync frontend to S3
+        run: aws s3 sync frontend/dist s3://${{ secrets.FRONTEND_BUCKET }} --delete
+
+      - name: Package Lambdas
+        run: |
+          for fn in lambdas/*; do
+            zip -jr "${fn##*/}.zip" "$fn";
+          done
+
+      - name: Upload Lambda artifacts
+        run: aws s3 cp --recursive . s3://${{ secrets.DEPLOY_BUCKET }}/artifacts/ --exclude "*" --include "*.zip"
+
+      - name: Terraform Init
+        working-directory: infra/terraform
+        run: terraform init
+
+      - name: Terraform Apply
+        working-directory: infra/terraform
+        env:
+          TF_VAR_project: fitmycv
+          TF_VAR_aws_region: ${{ secrets.AWS_REGION || 'us-east-1' }}
+        run: terraform apply -auto-approve

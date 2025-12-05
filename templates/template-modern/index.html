@@ -1,0 +1,44 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <style>
+    body { font-family: 'Inter', sans-serif; margin: 32px; color: #0f172a; }
+    .header { display: flex; justify-content: space-between; align-items: center; }
+    h1 { margin: 0; font-size: 28px; }
+    .accent { color: #10b981; }
+    .section { margin-top: 24px; }
+    .pill { display: inline-block; padding: 6px 10px; border: 1px solid #10b981; border-radius: 12px; margin: 4px; }
+    ul { padding-left: 18px; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div>
+      <h1>{{NAME}}</h1>
+      <p class="accent">{{SUMMARY}}</p>
+    </div>
+    <div class="accent">Tailored for {{TARGET_TITLE}}</div>
+  </div>
+
+  <div class="section">
+    <h2>Core Skills</h2>
+    <div>{{CORE_SKILLS}}</div>
+  </div>
+
+  <div class="section">
+    <h2>Experience</h2>
+    <div>{{EXPERIENCE}}</div>
+  </div>
+
+  <div class="section">
+    <h2>Projects</h2>
+    <div>{{PROJECTS}}</div>
+  </div>
+
+  <div class="section">
+    <h2>Education</h2>
+    <div>{{EDUCATION}}</div>
+  </div>
+</body>
+</html>
