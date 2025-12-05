@@ -1,0 +1,39 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <style>
+    body { font-family: 'Georgia', serif; margin: 40px; color: #1f2937; background: #f8fafc; }
+    h1 { letter-spacing: 2px; text-transform: uppercase; font-size: 26px; }
+    h2 { color: #2563eb; border-bottom: 1px solid #2563eb; padding-bottom: 4px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    ul { padding-left: 18px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>{{NAME}}</h1>
+    <p><strong>{{TARGET_TITLE}}</strong> — {{SUMMARY}}</p>
+  </header>
+
+  <section class="grid">
+    <div>
+      <h2>Experience</h2>
+      {{EXPERIENCE}}
+    </div>
+    <div>
+      <h2>Core Skills</h2>
+      {{CORE_SKILLS}}
+      <h2>Education</h2>
+      {{EDUCATION}}
+      <h2>Certifications</h2>
+      {{CERTIFICATIONS}}
+    </div>
+  </section>
+
+  <section>
+    <h2>Projects</h2>
+    {{PROJECTS}}
+  </section>
+</body>
+</html>
