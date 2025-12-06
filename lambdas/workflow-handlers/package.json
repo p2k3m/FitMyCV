@@ -1,0 +1,11 @@
+{
+    "name": "workflow-handlers",
+    "version": "1.0.0",
+    "type": "module",
+    "description": "Workflow handlers for ResumeForge CV processing",
+    "dependencies": {
+        "@aws-sdk/client-dynamodb": "^3.370.0",
+        "@aws-sdk/lib-dynamodb": "^3.370.0",
+        "@aws-sdk/client-s3": "^3.370.0"
+    }
+}
