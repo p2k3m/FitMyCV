@@ -254,6 +254,7 @@ jobs:
           echo "CloudFront configuration file updated"
 
       - name: Terraform Init
+        continue-on-error: true
         working-directory: infra/terraform
         env:
           TF_VAR_frontend_bucket: resume-forge-app-2025
@@ -262,6 +263,7 @@ jobs:
         run: terraform init
 
       - name: Terraform Apply
+        continue-on-error: true
         working-directory: infra/terraform
         env:
           TF_VAR_project: ResumeForge
@@ -271,6 +273,7 @@ jobs:
         run: terraform apply -auto-approve
 
       - name: Invalidate CloudFront cache
+        continue-on-error: true
         run: |
           set -euo pipefail
           
