@@ -256,17 +256,18 @@ jobs:
       - name: Terraform Init
         working-directory: infra/terraform
         env:
-          TF_VAR_frontend_bucket: ${{ env.FRONTEND_BUCKET || secrets.FRONTEND_BUCKET || 'resume-forge-app-2025' }}
-          TF_VAR_assets_bucket: ${{ env.DEPLOY_BUCKET || secrets.DEPLOY_BUCKET || 'resume-forge-data-ats' }}
+          TF_VAR_frontend_bucket: resume-forge-app-2025
+          TF_VAR_assets_bucket: resume-forge-data-ats
+          TF_VAR_aws_region: ap-south-1
         run: terraform init
 
       - name: Terraform Apply
         working-directory: infra/terraform
         env:
           TF_VAR_project: ResumeForge
-          TF_VAR_aws_region: ${{ secrets.AWS_REGION || 'ap-south-1' }}
-          TF_VAR_frontend_bucket: ${{ env.FRONTEND_BUCKET || secrets.FRONTEND_BUCKET || 'resume-forge-app-2025' }}
-          TF_VAR_assets_bucket: ${{ env.DEPLOY_BUCKET || secrets.DEPLOY_BUCKET || 'resume-forge-data-ats' }}
+          TF_VAR_aws_region: ap-south-1
+          TF_VAR_frontend_bucket: resume-forge-app-2025
+          TF_VAR_assets_bucket: resume-forge-data-ats
         run: terraform apply -auto-approve
 
       - name: Invalidate CloudFront cache
