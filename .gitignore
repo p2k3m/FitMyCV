@@ -4,3 +4,10 @@ frontend/dist
 .DS_Store
 *.zip
 .env
+# Local .terraform directories
+**/.terraform/*
+.terraform*
+
+# .tfstate files
+*.tfstate
+*.tfstate.*
