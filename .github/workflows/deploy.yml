@@ -97,3 +97,17 @@ jobs:
           TF_VAR_frontend_bucket: ${{ env.FRONTEND_BUCKET || secrets.FRONTEND_BUCKET || 'fitmycv-frontend' }}
           TF_VAR_assets_bucket: ${{ env.DEPLOY_BUCKET || secrets.DEPLOY_BUCKET || 'fitmycv-assets' }}
         run: terraform apply -auto-approve
+
+      - name: Invalidate CloudFront cache
+        working-directory: infra/terraform
+        run: |
+          set -euo pipefail
+
+          distribution_id=$(terraform output -raw cloudfront_id)
+
+          if [ -z "$distribution_id" ]; then
+            echo "No CloudFront distribution ID found; skipping invalidation" >&2
+            exit 1
+          fi
+
+          aws cloudfront create-invalidation --distribution-id "$distribution_id" --paths "/*"

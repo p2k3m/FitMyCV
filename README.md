@@ -44,6 +44,7 @@ npm run dev
 2. Run Terraform from `infra/terraform` to provision S3/CloudFront and capture the `cloudfront_domain` output. Update the placeholder URL above.
 3. Upload HTML templates to the assets bucket if you want to serve them externally; the formatter Lambda expects them under `/opt/templates` via Lambda layer or S3 sync.
 4. Wire API Gateway routes to the Lambdas to satisfy the contract in `docs/api-contract.md`.
+5. If CloudFront returns 403 for `/` or `/favicon.ico`, see `docs/troubleshooting.md`.
 
 ## Quality Controls
 - ATS-compliant text (no icons/tables in text layer).

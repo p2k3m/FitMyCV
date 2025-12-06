@@ -130,3 +130,8 @@ resource "aws_cloudfront_distribution" "cdn" {
 output "cloudfront_domain" {
   value = aws_cloudfront_distribution.cdn.domain_name
 }
+
+output "cloudfront_id" {
+  description = "ID of the CloudFront distribution so deployments can trigger cache invalidations"
+  value       = aws_cloudfront_distribution.cdn.id
+}
