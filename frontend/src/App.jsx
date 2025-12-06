@@ -21,8 +21,8 @@ export default function App() {
     try {
       // 1. Start the job
       const form = new FormData()
-      form.append('file', cvFile)
-      form.append('jobDescription', jobDescription) // Send JD with the file
+      form.append('resume', cvFile)
+      form.append('manualJobDescription', jobDescription) // Send JD with the file
 
       const startRes = await fetch(`${API_BASE}/api/process-cv`, { method: 'POST', body: form })
 
