@@ -46,11 +46,10 @@ resource "aws_cloudfront_origin_access_identity" "this" {}
 
 data "aws_iam_policy_document" "frontend_bucket" {
   statement {
-    sid = "AllowCloudFrontOAI"
+    sid    = "AllowCloudFrontOAIGet"
+    effect = "Allow"
 
-    actions = [
-      "s3:GetObject",
-    ]
+    actions = ["s3:GetObject"]
 
     principals {
       type        = "CanonicalUser"
@@ -58,6 +57,20 @@ data "aws_iam_policy_document" "frontend_bucket" {
     }
 
     resources = ["${data.aws_s3_bucket.frontend.arn}/*"]
+  }
+
+  statement {
+    sid    = "AllowCloudFrontOAIList"
+    effect = "Allow"
+
+    actions = ["s3:ListBucket"]
+
+    principals {
+      type        = "CanonicalUser"
+      identifiers = [aws_cloudfront_origin_access_identity.this.s3_canonical_user_id]
+    }
+
+    resources = [data.aws_s3_bucket.frontend.arn]
   }
 }
 
