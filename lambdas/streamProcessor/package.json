@@ -1,0 +1,19 @@
+{
+    "name": "stream-processor",
+    "version": "1.0.0",
+    "description": "DynamoDB Streams processor to trigger Step Functions",
+    "main": "index.js",
+    "scripts": {
+        "build": "tsc",
+        "package": "npm run build && zip -r stream-processor.zip dist/ node_modules/"
+    },
+    "dependencies": {
+        "@aws-sdk/client-sfn": "^3.370.0",
+        "@aws-sdk/util-dynamodb": "^3.370.0"
+    },
+    "devDependencies": {
+        "@types/aws-lambda": "^8.10.119",
+        "@types/node": "^20.0.0",
+        "typescript": "^5.0.0"
+    }
+}
