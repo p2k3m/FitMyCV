@@ -52,8 +52,8 @@ data "aws_iam_policy_document" "frontend_bucket" {
     actions = ["s3:GetObject"]
 
     principals {
-      type        = "AWS"
-      identifiers = [aws_cloudfront_origin_access_identity.this.iam_arn]
+      type        = "CanonicalUser"
+      identifiers = [aws_cloudfront_origin_access_identity.this.s3_canonical_user_id]
     }
 
     resources = ["${data.aws_s3_bucket.frontend.arn}/*"]
@@ -66,8 +66,8 @@ data "aws_iam_policy_document" "frontend_bucket" {
     actions = ["s3:ListBucket"]
 
     principals {
-      type        = "AWS"
-      identifiers = [aws_cloudfront_origin_access_identity.this.iam_arn]
+      type        = "CanonicalUser"
+      identifiers = [aws_cloudfront_origin_access_identity.this.s3_canonical_user_id]
     }
 
     resources = [data.aws_s3_bucket.frontend.arn]
