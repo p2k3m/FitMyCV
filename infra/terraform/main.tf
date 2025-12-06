@@ -12,11 +12,6 @@ provider "aws" {
   region = var.aws_region
 }
 
-variable "project" {
-  type    = string
-  default = "fitmycv"
-}
-
 variable "aws_region" {
   type    = string
   default = "us-east-1"
@@ -27,14 +22,24 @@ variable "domain_name" {
   default = "fitmycv.example.com"
 }
 
-resource "aws_s3_bucket" "frontend" {
-  bucket = "${var.project}-frontend"
-  force_destroy = true
+variable "frontend_bucket" {
+  description = "Name of the existing frontend bucket"
+  type        = string
+  default     = "fitmycv-frontend"
 }
 
-resource "aws_s3_bucket" "assets" {
-  bucket = "${var.project}-assets"
-  force_destroy = true
+variable "assets_bucket" {
+  description = "Name of the existing assets bucket"
+  type        = string
+  default     = "fitmycv-assets"
+}
+
+data "aws_s3_bucket" "frontend" {
+  bucket = var.frontend_bucket
+}
+
+data "aws_s3_bucket" "assets" {
+  bucket = var.assets_bucket
 }
 
 resource "aws_cloudfront_origin_access_identity" "this" {}
@@ -44,7 +49,7 @@ resource "aws_cloudfront_distribution" "cdn" {
   default_root_object = "index.html"
 
   origin {
-    domain_name = aws_s3_bucket.frontend.bucket_regional_domain_name
+    domain_name = data.aws_s3_bucket.frontend.bucket_regional_domain_name
     origin_id   = "frontend"
 
     s3_origin_config {
