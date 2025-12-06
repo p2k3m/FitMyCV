@@ -1,0 +1,1 @@
+{"success":false,"error":{"code":"TEXT_EXTRACTION_FAILED","message":"We couldn't read your PDF resume. Please export a new PDF (make sure it is not password protected) and upload it again.","details":{"stage":"extract_text"},"requestId":"b5c30093-5f10-4d42-ada9-501cd48fa614","jobId":"4369fca1-c23e-4c61-bbab-8e85a47fa94a"}}

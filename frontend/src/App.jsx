@@ -33,6 +33,12 @@ export default function App() {
       const startData = await startRes.json()
       const jobId = startData.jobId || startData.id
 
+      if (startData.success === false) {
+        setStatus('Job Failed')
+        setError(startData.error?.message || 'Job started failed')
+        return
+      }
+
       if (!jobId) {
         throw new Error('No Job ID received from backend')
       }
