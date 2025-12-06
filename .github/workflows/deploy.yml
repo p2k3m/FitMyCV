@@ -123,6 +123,57 @@ jobs:
           
           echo "Lambda function updated successfully"
 
+      - name: Update Workflow Lambda IAM Permissions
+        env:
+          AWS_DEFAULT_REGION: ap-south-1
+        run: |
+          set -euo pipefail
+          
+          echo "Updating IAM permissions for workflow Lambda functions..."
+          
+          # Get role names for all workflow Lambda functions
+          SCORE_ROLE=$(aws lambda get-function-configuration --region ap-south-1 --function-name ResumeForge-prod-workflow-score --query 'Role' --output text | awk -F'/' '{print $NF}')
+          GENERATE_ROLE=$(aws lambda get-function-configuration --region ap-south-1 --function-name ResumeForge-prod-workflow-generate --query 'Role' --output text | awk -F'/' '{print $NF}')
+          COMBINE_ROLE=$(aws lambda get-function-configuration --region ap-south-1 --function-name ResumeForge-prod-workflow-combine --query 'Role' --output text | awk -F'/' '{print $NF}')
+          ENHANCEMENT_ROLE=$(aws lambda get-function-configuration --region ap-south-1 --function-name ResumeForge-prod-workflow-enhancement-section --query 'Role' --output text | awk -F'/' '{print $NF}')
+          
+          # Create DynamoDB and S3 permissions policy
+          cat > /tmp/workflow-permissions.json <<'EOF'
+          {
+            "Version": "2012-10-17",
+            "Statement": [
+              {
+                "Effect": "Allow",
+                "Action": [
+                  "dynamodb:UpdateItem",
+                  "dynamodb:PutItem",
+                  "dynamodb:GetItem"
+                ],
+                "Resource": "arn:aws:dynamodb:ap-south-1:*:table/ResumeForgeLogs"
+              },
+              {
+                "Effect": "Allow",
+                "Action": [
+                  "s3:PutObject",
+                  "s3:GetObject"
+                ],
+                "Resource": "arn:aws:s3:::resume-forge-data-ats/*"
+              }
+            ]
+          }
+          EOF
+          
+          # Apply policy to all workflow function roles
+          for ROLE in "$SCORE_ROLE" "$GENERATE_ROLE" "$COMBINE_ROLE" "$ENHANCEMENT_ROLE"; do
+            echo "Updating permissions for role: $ROLE"
+            aws iam put-role-policy \
+              --role-name "$ROLE" \
+              --policy-name WorkflowDynamoDBAndS3Access \
+              --policy-document file:///tmp/workflow-permissions.json
+          done
+          
+          echo "IAM permissions updated for all workflow Lambda functions"
+
       - name: Update Lambda Environment Variables
         env:
           AWS_DEFAULT_REGION: ap-south-1
