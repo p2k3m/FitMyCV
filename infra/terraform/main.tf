@@ -42,35 +42,53 @@ data "aws_s3_bucket" "assets" {
   bucket = var.assets_bucket
 }
 
-resource "aws_cloudfront_origin_access_identity" "this" {}
+resource "aws_cloudfront_origin_access_control" "frontend" {
+  name                              = "${var.frontend_bucket}-oac"
+  description                       = "Origin access control for the frontend bucket"
+  origin_access_control_origin_type = "s3"
+  signing_behavior                  = "always"
+  signing_protocol                  = "sigv4"
+}
 
 data "aws_iam_policy_document" "frontend_bucket" {
   statement {
-    sid    = "AllowCloudFrontOAIGet"
+    sid    = "AllowCloudFrontOACRead"
     effect = "Allow"
 
     actions = ["s3:GetObject"]
 
     principals {
-      type        = "CanonicalUser"
-      identifiers = [aws_cloudfront_origin_access_identity.this.s3_canonical_user_id]
+      type        = "Service"
+      identifiers = ["cloudfront.amazonaws.com"]
     }
 
     resources = ["${data.aws_s3_bucket.frontend.arn}/*"]
+
+    condition {
+      test     = "StringEquals"
+      variable = "AWS:SourceArn"
+      values   = [aws_cloudfront_distribution.cdn.arn]
+    }
   }
 
   statement {
-    sid    = "AllowCloudFrontOAIList"
+    sid    = "AllowCloudFrontOACList"
     effect = "Allow"
 
     actions = ["s3:ListBucket"]
 
     principals {
-      type        = "CanonicalUser"
-      identifiers = [aws_cloudfront_origin_access_identity.this.s3_canonical_user_id]
+      type        = "Service"
+      identifiers = ["cloudfront.amazonaws.com"]
     }
 
     resources = [data.aws_s3_bucket.frontend.arn]
+
+    condition {
+      test     = "StringEquals"
+      variable = "AWS:SourceArn"
+      values   = [aws_cloudfront_distribution.cdn.arn]
+    }
   }
 }
 
@@ -87,9 +105,9 @@ resource "aws_cloudfront_distribution" "cdn" {
     domain_name = data.aws_s3_bucket.frontend.bucket_regional_domain_name
     origin_id   = "frontend"
 
-    s3_origin_config {
-      origin_access_identity = aws_cloudfront_origin_access_identity.this.cloudfront_access_identity_path
-    }
+    s3_origin_config {}
+
+    origin_access_control_id = aws_cloudfront_origin_access_control.frontend.id
   }
 
   default_cache_behavior {
