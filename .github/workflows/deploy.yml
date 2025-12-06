@@ -98,10 +98,12 @@ jobs:
       - name: Update Lambda Functions
         env:
           LAMBDA_ZIP: lambda_deployment.zip
+          AWS_DEFAULT_REGION: ap-south-1
         run: |
           set -euo pipefail
           
           echo "Updating Lambda functions with new code..."
+          echo "Using region: ap-south-1"
           
           # Update all Lambda functions
           for function in \
@@ -113,23 +115,29 @@ jobs:
           do
             echo "Updating $function..."
             aws lambda update-function-code \
+              --region ap-south-1 \
               --function-name "$function" \
               --zip-file "fileb://${LAMBDA_ZIP}" \
               --output json \
               --query '{FunctionName:FunctionName,LastModified:LastModified,CodeSize:CodeSize}'
             
             # Wait for update to complete before moving to next function
-            aws lambda wait function-updated --function-name "$function"
+            aws lambda wait function-updated \
+              --region ap-south-1 \
+              --function-name "$function"
           done
           
           echo "All Lambda functions updated successfully"
 
       - name: Update Lambda Environment Variables
+        env:
+          AWS_DEFAULT_REGION: ap-south-1
         run: |
           set -euo pipefail
           
           echo "Updating environment variables for resume-upload Lambda..."
           aws lambda update-function-configuration \
+            --region ap-south-1 \
             --function-name ResumeForge-prod-resume-upload \
             --environment "Variables={
               S3_BUCKET=resume-forge-data-ats,
@@ -150,7 +158,9 @@ jobs:
             --query '{FunctionName:FunctionName,LastUpdateStatus:LastUpdateStatus}'
           
           # Wait for configuration update to complete
-          aws lambda wait function-updated --function-name ResumeForge-prod-resume-upload
+          aws lambda wait function-updated \
+            --region ap-south-1 \
+            --function-name ResumeForge-prod-resume-upload
           echo "Environment variables updated successfully"
 
       - name: Update IAM Policies
