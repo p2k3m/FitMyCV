@@ -11,54 +11,68 @@ export default function App() {
 
   const handleGenerate = async () => {
     setError('')
+    setDownloadLinks({})
     if (!cvFile || !jobDescription) {
       setError('Upload a CV and paste a job description first.')
       return
     }
-    setStatus('Uploading CV...')
+    setStatus('Starting job...')
 
     try {
+      // 1. Start the job
       const form = new FormData()
       form.append('file', cvFile)
-      const uploadRes = await fetch(`${API_BASE}/api/process-cv`, { method: 'POST', body: form })
-      const upload = await uploadRes.json()
+      form.append('jobDescription', jobDescription) // Send JD with the file
 
-      setStatus('Parsing CV...')
-      const parseRes = await fetch(`${API_BASE}/cv/parse`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ upload_id: upload.upload_id, object_key: upload.object_key || upload.upload_id }),
-      })
-      const parsed = await parseRes.json()
+      const startRes = await fetch(`${API_BASE}/api/process-cv`, { method: 'POST', body: form })
 
-      setStatus('Analyzing JD...')
-      const jdRes = await fetch(`${API_BASE}/jd/analyze`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ job_description: jobDescription }),
-      })
-      const jd = await jdRes.json()
+      if (!startRes.ok) {
+        throw new Error(`Failed to start job: ${startRes.statusText}`)
+      }
 
-      setStatus('Rewriting CV...')
-      const rewriteRes = await fetch(`${API_BASE}/cv/rewrite`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ cv_sections: parsed.sections || parsed, jd_analysis: jd }),
-      })
-      const tailored = await rewriteRes.json()
+      const startData = await startRes.json()
+      const jobId = startData.jobId || startData.id
 
-      setStatus('Formatting PDFs...')
-      const formatRes = await fetch(`${API_BASE}/cv/format`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tailored_cv: tailored.tailored_cv || tailored, template_id: 'template-modern' }),
-      })
-      const links = await formatRes.json()
-      setDownloadLinks(links)
-      setStatus('Done! Ready to download')
+      if (!jobId) {
+        throw new Error('No Job ID received from backend')
+      }
+
+      setStatus('Processing... (this may take a minute)')
+
+      // 2. Poll for status
+      const pollInterval = setInterval(async () => {
+        try {
+          const statusRes = await fetch(`${API_BASE}/api/job-status?jobId=${jobId}`)
+          if (!statusRes.ok) {
+            // Keep polling if 404 (maybe consistency lag) or stop? 
+            // Usually 500 means retry, 4xx might mean fail. 
+            // For now, let's log and continue hoping it's transient or handled by error count
+            console.warn('Status check failed', statusRes.status)
+            return
+          }
+
+          const statusData = await statusRes.json()
+          console.log('Poll result:', statusData)
+
+          if (statusData.status === 'COMPLETED' || statusData.state === 'COMPLETED') {
+            clearInterval(pollInterval)
+            setStatus('Done! Ready to download')
+            setDownloadLinks(statusData.downloadLinks || statusData.results || {})
+          } else if (statusData.status === 'FAILED' || statusData.state === 'FAILED') {
+            clearInterval(pollInterval)
+            setStatus('Job Failed')
+            setError(statusData.error || 'Job failed on server')
+          } else {
+            setStatus(`Processing... (${statusData.status || 'running'})`)
+          }
+        } catch (pollErr) {
+          console.error('Polling error', pollErr)
+        }
+      }, 3000)
+
     } catch (err) {
       console.error(err)
-      setError('Something went wrong. Check API availability and try again.')
+      setError('Something went wrong. Check console for details.')
       setStatus('Idle')
     }
   }
