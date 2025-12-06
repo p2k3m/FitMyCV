@@ -37,13 +37,13 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION || 'us-east-1' }}
+          aws-region: ${{ secrets.AWS_REGION || 'ap-south-1' }}
 
       - name: Ensure deployment buckets exist
         env:
-          FRONTEND_BUCKET: ${{ secrets.FRONTEND_BUCKET || 'fitmycv-frontend' }}
-          DEPLOY_BUCKET: ${{ secrets.DEPLOY_BUCKET || 'fitmycv-assets' }}
-          AWS_REGION: ${{ secrets.AWS_REGION || 'us-east-1' }}
+          FRONTEND_BUCKET: ${{ secrets.FRONTEND_BUCKET || 'resume-forge-app-2025' }}
+          DEPLOY_BUCKET: ${{ secrets.DEPLOY_BUCKET || 'resume-forge-data-ats' }}
+          AWS_REGION: ${{ secrets.AWS_REGION || 'ap-south-1' }}
         run: |
           set -euo pipefail
 
@@ -73,43 +73,222 @@ jobs:
           } >> "$GITHUB_ENV"
 
       - name: Sync frontend to S3
-        run: aws s3 sync frontend/dist s3://${FRONTEND_BUCKET} --delete
+        run: aws s3 sync frontend/dist s3://${FRONTEND_BUCKET}/static/client/prod/latest --delete
 
-      - name: Package Lambdas
+      - name: Download Font Files
         run: |
-          for fn in lambdas/*; do
-            zip -jr "${fn##*/}.zip" "$fn";
-          done
+          set -euo pipefail
+          echo "Downloading standard PDF font files..."
+          npm pack pdfkit --pack-destination /tmp
+          cd /tmp && tar -xzf pdfkit-*.tgz
+          mkdir -p lambda_extracted/lambdas/data
+          mkdir -p lambda_extracted/lib/fonts/data
+          cp package/js/data/*.afm lambda_extracted/lambdas/data/
+          cp package/js/data/*.afm lambda_extracted/lib/fonts/data/
+          echo "Font files copied successfully"
 
-      - name: Upload Lambda artifacts
-        run: aws s3 cp --recursive . s3://${DEPLOY_BUCKET}/artifacts/ --exclude "*" --include "*.zip"
+      - name: Package Lambda with Fonts
+        run: |
+          set -euo pipefail
+          cd lambda_extracted
+          zip -r ../lambda_deployment.zip .
+          cd ..
+          ls -lh lambda_deployment.zip
+
+      - name: Update Lambda Functions
+        env:
+          LAMBDA_ZIP: lambda_deployment.zip
+        run: |
+          set -euo pipefail
+          
+          echo "Updating Lambda functions with new code..."
+          
+          # Update all Lambda functions
+          for function in \
+            ResumeForge-prod-resume-upload \
+            ResumeForge-prod-workflow-generate \
+            ResumeForge-prod-workflow-score \
+            ResumeForge-prod-workflow-combine \
+            ResumeForge-prod-workflow-enhancement-section
+          do
+            echo "Updating $function..."
+            aws lambda update-function-code \
+              --function-name "$function" \
+              --zip-file "fileb://${LAMBDA_ZIP}" \
+              --output json \
+              --query '{FunctionName:FunctionName,LastModified:LastModified,CodeSize:CodeSize}'
+            
+            # Wait for update to complete before moving to next function
+            aws lambda wait function-updated --function-name "$function"
+          done
+          
+          echo "All Lambda functions updated successfully"
+
+      - name: Update Lambda Environment Variables
+        run: |
+          set -euo pipefail
+          
+          echo "Updating environment variables for resume-upload Lambda..."
+          aws lambda update-function-configuration \
+            --function-name ResumeForge-prod-resume-upload \
+            --environment "Variables={
+              S3_BUCKET=resume-forge-data-ats,
+              STAGE_NAME=prod,
+              ACTIVE_SERVICE=resumeUpload,
+              GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }},
+              RESUME_TABLE_NAME=ResumeForgeLogs,
+              DEPLOYMENT_ENVIRONMENT=prod,
+              STATIC_ASSETS_BUCKET=resume-forge-app-2025,
+              ORCHESTRATION_BUS_NAME=ResumeForge-prod-resume-forge-orchestration,
+              PRIMARY_REGION=us-east-1,
+              SECONDARY_REGION=us-west-2,
+              ENABLE_DEBUG_LOGGING=true,
+              CLOUDFRONT_ORIGINS=https://d19m8lzbl1980w.cloudfront.net,
+              LOG_LEVEL=debug
+            }" \
+            --output json \
+            --query '{FunctionName:FunctionName,LastUpdateStatus:LastUpdateStatus}'
+          
+          # Wait for configuration update to complete
+          aws lambda wait function-updated --function-name ResumeForge-prod-resume-upload
+          echo "Environment variables updated successfully"
+
+      - name: Update IAM Policies
+        run: |
+          set -euo pipefail
+          
+          echo "Updating IAM policies for Lambda execution role..."
+          
+          # DynamoDB policy
+          cat > /tmp/dynamodb-policy.json << 'EOF'
+          {
+            "Statement": [
+              {
+                "Action": [
+                  "dynamodb:GetItem",
+                  "dynamodb:DeleteItem",
+                  "dynamodb:PutItem",
+                  "dynamodb:Scan",
+                  "dynamodb:Query",
+                  "dynamodb:UpdateItem",
+                  "dynamodb:BatchWriteItem",
+                  "dynamodb:BatchGetItem",
+                  "dynamodb:DescribeTable",
+                  "dynamodb:ConditionCheckItem"
+                ],
+                "Resource": [
+                  "arn:aws:dynamodb:ap-south-1:957650740525:table/ResumeForge",
+                  "arn:aws:dynamodb:ap-south-1:957650740525:table/ResumeForge/index/*",
+                  "arn:aws:dynamodb:ap-south-1:957650740525:table/ResumeForgeLogs",
+                  "arn:aws:dynamodb:ap-south-1:957650740525:table/ResumeForgeLogs/index/*"
+                ],
+                "Effect": "Allow"
+              }
+            ]
+          }
+          EOF
+          
+          # EventBridge policy
+          cat > /tmp/eventbridge-policy.json << 'EOF'
+          {
+            "Statement": [
+              {
+                "Effect": "Allow",
+                "Action": [
+                  "events:PutEvents"
+                ],
+                "Resource": [
+                  "arn:aws:events:ap-south-1:957650740525:event-bus/ResumeForge-prod-resume-forge-orchestration"
+                ]
+              }
+            ]
+          }
+          EOF
+          
+          # Apply policies
+          aws iam put-role-policy \
+            --role-name ResumeForge-ResumeForgeFunctionRole-I1oDcO54aMSa \
+            --policy-name ResumeForgeFunctionRolePolicy2 \
+            --policy-document file:///tmp/dynamodb-policy.json
+          
+          aws iam put-role-policy \
+            --role-name ResumeForge-ResumeForgeFunctionRole-I1oDcO54aMSa \
+            --policy-name ResumeForgeFunctionRoleEventBridgePolicy \
+            --policy-document file:///tmp/eventbridge-policy.json
+          
+          echo "IAM policies updated successfully"
+
+      - name: Update published-cloudfront.json in S3
+        run: |
+          set -euo pipefail
+          
+          # Create updated config file
+          cat > /tmp/published-cloudfront.json << 'EOF'
+          {
+            "stackName": "ResumeForge",
+            "url": "https://d19m8lzbl1980w.cloudfront.net",
+            "distributionId": "E2OWOS9JQQDVU3",
+            "updatedAt": "$(date -u +%Y-%m-%dT%H:%M:%S.000Z)",
+            "degraded": false,
+            "apiGatewayUrl": "https://j3a7m3jz11.execute-api.ap-south-1.amazonaws.com/prod",
+            "originBucket": "resume-forge-app-2025",
+            "originRegion": "ap-south-1",
+            "originPath": "/static/client/prod/latest"
+          }
+          EOF
+          
+          # Upload to S3 (if Lambda needs to read it from there)
+          aws s3 cp /tmp/published-cloudfront.json \
+            s3://${DEPLOY_BUCKET}/config/published-cloudfront.json
+          
+          echo "CloudFront configuration file updated"
 
       - name: Terraform Init
         working-directory: infra/terraform
         env:
-          TF_VAR_frontend_bucket: ${{ env.FRONTEND_BUCKET || secrets.FRONTEND_BUCKET || 'fitmycv-frontend' }}
-          TF_VAR_assets_bucket: ${{ env.DEPLOY_BUCKET || secrets.DEPLOY_BUCKET || 'fitmycv-assets' }}
+          TF_VAR_frontend_bucket: ${{ env.FRONTEND_BUCKET || secrets.FRONTEND_BUCKET || 'resume-forge-app-2025' }}
+          TF_VAR_assets_bucket: ${{ env.DEPLOY_BUCKET || secrets.DEPLOY_BUCKET || 'resume-forge-data-ats' }}
         run: terraform init
 
       - name: Terraform Apply
         working-directory: infra/terraform
         env:
-          TF_VAR_project: fitmycv
-          TF_VAR_aws_region: ${{ secrets.AWS_REGION || 'us-east-1' }}
-          TF_VAR_frontend_bucket: ${{ env.FRONTEND_BUCKET || secrets.FRONTEND_BUCKET || 'fitmycv-frontend' }}
-          TF_VAR_assets_bucket: ${{ env.DEPLOY_BUCKET || secrets.DEPLOY_BUCKET || 'fitmycv-assets' }}
+          TF_VAR_project: ResumeForge
+          TF_VAR_aws_region: ${{ secrets.AWS_REGION || 'ap-south-1' }}
+          TF_VAR_frontend_bucket: ${{ env.FRONTEND_BUCKET || secrets.FRONTEND_BUCKET || 'resume-forge-app-2025' }}
+          TF_VAR_assets_bucket: ${{ env.DEPLOY_BUCKET || secrets.DEPLOY_BUCKET || 'resume-forge-data-ats' }}
         run: terraform apply -auto-approve
 
       - name: Invalidate CloudFront cache
-        working-directory: infra/terraform
         run: |
           set -euo pipefail
-
-          distribution_id=$(terraform output -raw cloudfront_id)
-
+          
+          distribution_id="E2OWOS9JQQDVU3"
+          
           if [ -z "$distribution_id" ]; then
             echo "No CloudFront distribution ID found; skipping invalidation" >&2
             exit 1
           fi
+          
+          aws cloudfront create-invalidation \
+            --distribution-id "$distribution_id" \
+            --paths "/*"
+          
+          echo "CloudFront cache invalidation triggered for distribution: $distribution_id"
 
-          aws cloudfront create-invalidation --distribution-id "$distribution_id" --paths "/*"
+      - name: Deployment Summary
+        run: |
+          echo "=========================================="
+          echo "Deployment completed successfully!"
+          echo "=========================================="
+          echo "Frontend URL: https://d19m8lzbl1980w.cloudfront.net"
+          echo "API Base URL: https://j3a7m3jz11.execute-api.ap-south-1.amazonaws.com/prod"
+          echo "Region: ap-south-1"
+          echo "=========================================="
+          echo "Lambda Functions Updated:"
+          echo "  - ResumeForge-prod-resume-upload"
+          echo "  - ResumeForge-prod-workflow-generate"
+          echo "  - ResumeForge-prod-workflow-score"
+          echo "  - ResumeForge-prod-workflow-combine"
+          echo "  - ResumeForge-prod-workflow-enhancement-section"
+          echo "=========================================="
