@@ -105,7 +105,12 @@ resource "aws_cloudfront_distribution" "cdn" {
     domain_name = data.aws_s3_bucket.frontend.bucket_regional_domain_name
     origin_id   = "frontend"
 
-    s3_origin_config {}
+    # When using an origin access control, CloudFront still requires an
+    # s3_origin_config block; the origin_access_identity must be empty.
+    # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudfront_distribution#using-an-origin-access-control-with-s3
+    s3_origin_config {
+      origin_access_identity = ""
+    }
 
     origin_access_control_id = aws_cloudfront_origin_access_control.frontend.id
   }
