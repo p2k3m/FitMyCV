@@ -1,3 +1,4 @@
+# Copilot review intentionally removed; this workflow only builds and deploys.
 name: Deploy
 
 on:
