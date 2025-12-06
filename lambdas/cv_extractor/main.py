@@ -33,7 +33,15 @@ def lambda_handler(event: Dict[str, Any], _context: Any) -> Dict[str, Any]:
     }
 
     body = {"sections": sections, "raw_text": raw_text}
-    return {"statusCode": 200, "body": json.dumps(body)}
+    return {
+        "statusCode": 200,
+        "headers": {
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Headers": "Content-Type",
+            "Access-Control-Allow-Methods": "OPTIONS,POST,GET"
+        },
+        "body": json.dumps(body)
+    }
 
 
 if __name__ == "__main__":

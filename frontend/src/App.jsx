@@ -20,7 +20,7 @@ export default function App() {
     try {
       const form = new FormData()
       form.append('file', cvFile)
-      const uploadRes = await fetch(`${API_BASE}/cv/upload`, { method: 'POST', body: form })
+      const uploadRes = await fetch(`${API_BASE}/api/process-cv`, { method: 'POST', body: form })
       const upload = await uploadRes.json()
 
       setStatus('Parsing CV...')

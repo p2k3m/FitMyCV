@@ -28,6 +28,8 @@ jobs:
 
       - name: Build frontend
         working-directory: frontend
+        env:
+          VITE_API_BASE: "https://j3a7m3jz11.execute-api.ap-south-1.amazonaws.com/prod"
         run: npm run build
 
       - name: Configure AWS credentials
