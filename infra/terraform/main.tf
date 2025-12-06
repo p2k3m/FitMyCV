@@ -17,6 +17,12 @@ variable "aws_region" {
   default = "us-east-1"
 }
 
+variable "environment" {
+  description = "Deployment environment name used for tagging."
+  type        = string
+  default     = "prod"
+}
+
 variable "domain_name" {
   type    = string
   default = "fitmycv.example.com"
@@ -48,6 +54,13 @@ resource "aws_cloudfront_origin_access_control" "frontend" {
   origin_access_control_origin_type = "s3"
   signing_behavior                  = "always"
   signing_protocol                  = "sigv4"
+
+  tags = {
+    Project     = "FitMyCV"
+    Environment = var.environment
+    Component   = "cloudfront"
+    ManagedBy   = "fitmycv-repo"
+  }
 }
 
 data "aws_iam_policy_document" "frontend_bucket" {
@@ -99,6 +112,7 @@ resource "aws_s3_bucket_policy" "frontend" {
 
 resource "aws_cloudfront_distribution" "cdn" {
   enabled             = true
+  comment             = "FitMyCV primary distribution"
   default_root_object = "index.html"
 
   origin {
@@ -148,6 +162,13 @@ resource "aws_cloudfront_distribution" "cdn" {
     response_code         = 200
     response_page_path    = "/index.html"
   }
+
+  tags = {
+    Project     = "FitMyCV"
+    Environment = var.environment
+    Component   = "cloudfront"
+    ManagedBy   = "fitmycv-repo"
+  }
 }
 
 output "cloudfront_domain" {
@@ -158,3 +179,4 @@ output "cloudfront_id" {
   description = "ID of the CloudFront distribution so deployments can trigger cache invalidations"
   value       = aws_cloudfront_distribution.cdn.id
 }
+
