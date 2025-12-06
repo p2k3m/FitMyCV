@@ -44,6 +44,28 @@ data "aws_s3_bucket" "assets" {
 
 resource "aws_cloudfront_origin_access_identity" "this" {}
 
+data "aws_iam_policy_document" "frontend_bucket" {
+  statement {
+    sid = "AllowCloudFrontOAI"
+
+    actions = [
+      "s3:GetObject",
+    ]
+
+    principals {
+      type        = "CanonicalUser"
+      identifiers = [aws_cloudfront_origin_access_identity.this.s3_canonical_user_id]
+    }
+
+    resources = ["${data.aws_s3_bucket.frontend.arn}/*"]
+  }
+}
+
+resource "aws_s3_bucket_policy" "frontend" {
+  bucket = data.aws_s3_bucket.frontend.id
+  policy = data.aws_iam_policy_document.frontend_bucket.json
+}
+
 resource "aws_cloudfront_distribution" "cdn" {
   enabled             = true
   default_root_object = "index.html"
@@ -75,6 +97,20 @@ resource "aws_cloudfront_distribution" "cdn" {
 
   viewer_certificate {
     cloudfront_default_certificate = true
+  }
+
+  custom_error_response {
+    error_caching_min_ttl = 0
+    error_code            = 403
+    response_code         = 200
+    response_page_path    = "/index.html"
+  }
+
+  custom_error_response {
+    error_caching_min_ttl = 0
+    error_code            = 404
+    response_code         = 200
+    response_page_path    = "/index.html"
   }
 }
 

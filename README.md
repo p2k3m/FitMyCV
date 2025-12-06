@@ -9,7 +9,7 @@ Serverless pipeline that rewrites CVs to match any job description, then renders
 - Outputs: Tailored CV (PDF/DOCX) and Cover Letter (PDF/text).
 
 ## Architecture Overview
-- **Frontend:** React + Tailwind hosted on S3 + CloudFront (`https://dxxxx.cloudfront.net` placeholder; replace with output from Terraform). No auth.
+- **Frontend:** React + Tailwind hosted on S3 + CloudFront (use the `cloudfront_domain` Terraform output as the canonical URL). No auth.
 - **API Gateway:** Public REST endpoints (see [`docs/api-contract.md`](docs/api-contract.md)).
 - **Lambdas:**
   - CV Extractor (PyMuPDF/python-docx) → plain text sections.
@@ -18,7 +18,10 @@ Serverless pipeline that rewrites CVs to match any job description, then renders
   - CV Formatter (Puppeteer-lite/Chromium) → HTML → PDF/DOCX using templates in `templates/`.
   - Cover Letter Generator (LLM) → ATS-friendly cover letter.
 - **Storage:** S3 uploads (raw CV), assets/templates, rendered outputs with pre-signed download URLs.
-- **CI/CD:** GitHub Actions builds frontend, zips Lambdas, deploys Terraform stack.
+- **CI/CD:** GitHub Actions builds frontend, zips Lambdas, deploys Terraform stack (Copilot review is intentionally excluded from the pipeline).
+
+## Deployed URL
+- CloudFront distribution: `https://<cloudfront_domain>` where `<cloudfront_domain>` comes from `terraform output -raw cloudfront_domain` after deployment.
 
 ## Repository Layout
 - `frontend/` – Vite + React + Tailwind starter UI with upload/JD inputs and download links.
