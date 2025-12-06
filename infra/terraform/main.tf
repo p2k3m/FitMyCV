@@ -54,13 +54,6 @@ resource "aws_cloudfront_origin_access_control" "frontend" {
   origin_access_control_origin_type = "s3"
   signing_behavior                  = "always"
   signing_protocol                  = "sigv4"
-
-  tags = {
-    Project     = "FitMyCV"
-    Environment = var.environment
-    Component   = "cloudfront"
-    ManagedBy   = "fitmycv-repo"
-  }
 }
 
 data "aws_iam_policy_document" "frontend_bucket" {
