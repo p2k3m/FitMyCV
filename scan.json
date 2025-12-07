@@ -1,0 +1,129 @@
+{
+    "Items": [
+        {
+            "userAgent": {
+                "S": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+            },
+            "locationCity": {
+                "S": ""
+            },
+            "ipAddress": {
+                "S": "49.207.61.248"
+            },
+            "locationCountry": {
+                "S": ""
+            },
+            "device": {
+                "S": "Macintosh"
+            },
+            "status": {
+                "S": "uploaded"
+            },
+            "linkedinProfileUrl": {
+                "S": "https://www.linkedin.com/in/pushkar-mishraa/  Github : https://github.com/p2k3m"
+            },
+            "requestId": {
+                "S": "342be216-a5d3-42af-acaf-a0d724fcbc68"
+            },
+            "coverLetter1Url": {
+                "S": ""
+            },
+            "credlyProfileUrl": {
+                "S": ""
+            },
+            "uploadedAt": {
+                "S": "2025-12-07T03:31:00.730Z"
+            },
+            "cv1Url": {
+                "S": ""
+            },
+            "s3Key": {
+                "S": "cv/pu_s/342be216-a5d3-42af-acaf-a0d724fcbc68/original.pdf"
+            },
+            "jobDescriptionDigest": {
+                "S": "a86a1058f127c002775bd813367e948f371349c4d715ba170d18af3fe23dd980"
+            },
+            "environment": {
+                "S": "prod"
+            },
+            "location": {
+                "S": "Unknown"
+            },
+            "s3Bucket": {
+                "S": "resume-forge-data-ats"
+            },
+            "documentClassification": {
+                "M": {
+                    "accepted": {
+                        "BOOL": true
+                    },
+                    "description": {
+                        "S": "a professional resume"
+                    },
+                    "evaluatedAt": {
+                        "S": "2025-12-07T03:31:00.533Z"
+                    },
+                    "isResume": {
+                        "BOOL": true
+                    },
+                    "confidence": {
+                        "N": "0.6"
+                    }
+                }
+            },
+            "os": {
+                "S": "Mac OS"
+            },
+            "locationRegion": {
+                "S": ""
+            },
+            "browser": {
+                "S": "Chrome"
+            },
+            "timestamp": {
+                "S": "2025-12-07T03:31:00.730Z"
+            },
+            "jobId": {
+                "S": "ca452764-ee33-4cbc-87ab-b9ee49977bcd"
+            },
+            "s3Url": {
+                "S": "s3://resume-forge-data-ats/cv/pu_s/342be216-a5d3-42af-acaf-a0d724fcbc68/original.pdf"
+            },
+            "coverLetter2Url": {
+                "S": ""
+            },
+            "sessionChangeLogKey": {
+                "S": "cv/pu_s/342be216-a5d3-42af-acaf-a0d724fcbc68/logs/change-log.json"
+            },
+            "sessionId": {
+                "S": "342be216-a5d3-42af-acaf-a0d724fcbc68"
+            },
+            "candidateName": {
+                "S": "PU S H K A R  MIS H R A"
+            },
+            "fileType": {
+                "S": "application/pdf"
+            },
+            "cv2Url": {
+                "S": ""
+            },
+            "sessionInputs": {
+                "M": {
+                    "jobDescriptionDigest": {
+                        "S": "a86a1058f127c002775bd813367e948f371349c4d715ba170d18af3fe23dd980"
+                    },
+                    "jobDescription": {
+                        "S": "Principal Architect, Cloud Bengaluru, Karnataka, India · 1 day ago · Over 100 applicants Promoted by hirer · Actively reviewing applicants On-site Matches your job preferences, workplace type is On-site. Full-time Matches your job preferences, job type is Full-time. Easy Apply Save Save Principal Architect, Cloud at Rakuten Symphony Principal Architect, Cloud Rakuten Symphony · Bengaluru, Karnataka, India (On-site) Easy Apply Save Save Principal Architect, Cloud at Rakuten Symphony Show more options Your AI-powered job assessment Show match details Tailor my resume Create cover letter Help me stand out People you can reach out to Prasad and others in your network Show all Meet the hiring team Naushad Khan Saifi Naushad Khan Saifi 2nd Senior Manager, Global Talent Acquisition || 30K LinkedIn Connections || Leadership Hiring || Executive Hiring Job poster · 80 mutual connections Message About the job Why should you choose us? Rakuten Symphony is reimagining telecom, changing supply chain norms and disrupting outmoded thinking that threatens the industry’s pursuit of rapid innovation and growth. Based on proven modern infrastructure practices, its open interface platforms make it possible to launch and operate advanced mobile services in a fraction of the time and cost of conventional approaches, with no compromise to network quality or security. Rakuten Symphony has operations in Japan, the United States, Singapore, India, South Korea, Europe, and the Middle East Africa region. For more information, visit: https://symphony.rakuten.com Building on the technology Rakuten used to launch Japan’s newest mobile network, we are taking our mobile offering global. To support our ambitions to provide an innovative cloud-native telco platform for our customers, Rakuten Symphony is looking to recruit and develop top talent from around the globe. We are looking for individuals to join our team across all functional areas of our business – from sales to engineering, support functions to product development. Let’s build the future of mobile telecommunications together! About Rakuten Group, Inc. (TSE: 4755) is a global leader in internet services that empower individuals, communities, businesses and society. Founded in Tokyo in 1997 as an online marketplace, Rakuten has expanded to offer services in e-commerce, fintech, digital content and communications to approximately 1.9 billion members around the world. The Rakuten Group has over 30,000 employees, and operations in 30 countries and regions. For more information visit https://global.rakuten.com/corp/. Job Purpose: As a Principal Cloud Architect within the Enterprise Architecture team, you will address the crucial need for a defined multi-datacentre (Multi-DC) and hybrid cloud strategy. This role is paramount for establishing robust cloud abstraction layers, architecting advanced solutions like Kubernetes stretch clusters, and ensuring a scalable and resilient OSS deployment architecture. Your expertise will be instrumental in guiding our cloud transformation, optimizing infrastructure costs, and enabling the rapid, secure, and reliable deployment of our critical OSS products across diverse cloud environments. PRINCIPLE RESPONSIBILITIES: Multi-DC & Hybrid Cloud Strategy Define and evolve the enterprise-wide multi-datacentre and hybrid cloud architectural strategy, aligning with business continuity, disaster recovery, and data locality requirements. Develop architectural patterns and guidelines for deploying and managing OSS applications across public cloud, private cloud, and on-premises environments. Evaluate and recommend cloud technologies, platforms, and services that best fit our architectural vision and operational needs. Cloud Abstraction & Kubernetes Excellence Design and promote cloud abstraction layers to ensure application portability and reduce vendor lock-in. Lead the architecture of advanced Kubernetes deployments, including considerations for stretch clusters, multi-cluster management, and highly available control planes. Ensure Kubernetes infrastructure is optimized for performance, scalability, and cost efficiency for OSS workloads. Scalable OSS Deployment Architecture Architect highly scalable, resilient, and fault-tolerant deployment models for our OSS product portfolio across various cloud footprints. Define patterns for automated provisioning, configuration management, and infrastructure as code (IaC) within cloud environments. Ensure architectural designs meet stringent non-functional requirements such as security, compliance, observability, and cost efficiency. Technical Leadership & Governance Provide senior technical leadership and guidance to product teams, engineering, and operations on cloud best practices, architectural patterns, and strategic technology choices. Participate in architectural review boards, ensuring cloud designs align with enterprise standards and strategic objectives. Conduct proof-of-concepts (POCs) for new cloud technologies and evaluate their suitability for our ecosystem. Cost Optimization & Operational Efficiency Design architectures that inherently optimize cloud infrastructure costs without compromising performance or reliability. Work with operations teams to define operational models and tools for managing cloud deployments at scale. REQUIRED KNOWLEDGE, SKILLS AND EXPERIENCE: Experience and Expertise 10+ years of hands-on experience in enterprise architecture, with at least 5 years dedicated to cloud architecture in complex, large-scale environments. Proven track record of designing and implementing multi-datacentre and hybrid cloud strategies. Deep expertise in Kubernetes and its ecosystem, including advanced deployment patterns (e.g., stretch clusters, federation). Strong background in architecting scalable and resilient distributed systems for critical applications like OSS. Technical Skills Expert-level knowledge of at least one major public cloud provider (AWS, Azure, or GCP) and strong familiarity with others. Deep understanding of cloud networking (VPCs, VPNs, Direct Connect/ExpressRoute), security (IAM, network security groups, WAF), and cost management. Proficiency with containerization technologies (Docker) and orchestration tools (Kubernetes). Strong experience with Infrastructure as Code (IaC) tools (e.g., Terraform, CloudFormation, Ansible). Knowledge of cloud-native observability stacks (monitoring, logging, tracing). Understanding of modern CI/CD practices in a cloud context. Familiarity with virtualization technologies (e.g., VMware, OpenStack). Analytical and Problem-Solving Skills Exceptional analytical and problem-solving abilities to design complex cloud architectures and resolve infrastructure challenges. Strong ability to balance architectural ideals with practical implementation constraints and business needs. Collaboration & Communication Excellent written and verbal communication skills, capable of articulating complex cloud strategies and technical designs to diverse audiences (engineers, leadership, non-technical stakeholders). Proven ability to collaborate effectively with product teams, engineering, operations, and security. Educational Background Bachelor’s degree in computer science, Software Engineering, or a related technical field. Additional Skills Certifications from major cloud providers (e.g., AWS Certified Solutions Architect - Professional). Experience with serverless architectures or edge computing. Knowledge of telecom-specific cloud deployments or network function virtualization (NFV) in cloud. Contributions to open-source cloud-native projects. RAKUTEN SHUGI PRINCIPLES: Our worldwide practices describe specific behaviours that make Rakuten unique and united across the world. We expect Rakuten employees to model these 5 Shugi Principles of Success. Always improve, always advance. Only be satisfied with complete success - Kaizen. Be passionately professional. Take an uncompromising approach to your work and be determined to be the best. Hypothesize - Practice - Validate - Shikumika. Use the Rakuten Cycle to success in unknown territory. Maximize Customer Satisfaction. The greatest satisfaction for workers in a service industry is to see their customers smile. Speed!! Speed!! Speed!! Always be conscious of time. Take charge, set clear goals, and engage your team."
+                    }
+                }
+            }
+        }
+    ],
+    "Count": 1,
+    "ScannedCount": 1,
+    "LastEvaluatedKey": {
+        "linkedinProfileUrl": {
+            "S": "https://www.linkedin.com/in/pushkar-mishraa/  Github : https://github.com/p2k3m"
+        }
+    }
+}

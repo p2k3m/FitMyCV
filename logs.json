@@ -1,0 +1,156 @@
+{
+    "events": [
+        {
+            "timestamp": 1765080689955,
+            "message": "2025-12-07T04:11:29.955Z\t17dc516b-329b-4b6a-a634-2103f7f9452d\tINFO\t{\"timestamp\":\"2025-12-07T04:11:29.955Z\",\"level\":\"info\",\"message\":\"request_received\",\"path\":\"/api/process-cv\",\"method\":\"POST\",\"template\":\"unknown\",\"session\":\"unknown\",\"build\":\"429\",\"artifactType\":\"none\",\"metadata\":{\"template\":\"unknown\",\"session\":\"unknown\",\"build\":\"429\",\"artifactType\":\"none\"}}\n",
+            "ingestionTime": 1765080693295
+        },
+        {
+            "timestamp": 1765080689955,
+            "message": "2025-12-07T04:11:29.955Z\t17dc516b-329b-4b6a-a634-2103f7f9452d\tINFO\t{\"timestamp\":\"2025-12-07T04:11:29.955Z\",\"level\":\"info\",\"message\":\"service_filter_entry\",\"allowListSize\":1,\"allowList\":[\"resumeUpload\"],\"path\":\"/api/process-cv\",\"template\":\"unknown\",\"session\":\"unknown\",\"build\":\"429\",\"artifactType\":\"none\",\"metadata\":{\"template\":\"unknown\",\"session\":\"unknown\",\"build\":\"429\",\"artifactType\":\"none\"}}\n",
+            "ingestionTime": 1765080693295
+        },
+        {
+            "timestamp": 1765080689956,
+            "message": "2025-12-07T04:11:29.956Z\t17dc516b-329b-4b6a-a634-2103f7f9452d\tINFO\t{\"timestamp\":\"2025-12-07T04:11:29.956Z\",\"level\":\"info\",\"message\":\"service_resolution_check\",\"method\":\"POST\",\"rawPath\":\"/api/process-cv\",\"serviceKey\":\"resumeUpload\",\"allowed\":true,\"allowList\":[\"resumeUpload\"],\"template\":\"unknown\",\"session\":\"unknown\",\"build\":\"429\",\"artifactType\":\"none\",\"metadata\":{\"template\":\"unknown\",\"session\":\"unknown\",\"build\":\"429\",\"artifactType\":\"none\"}}\n",
+            "ingestionTime": 1765080693295
+        },
+        {
+            "timestamp": 1765080689957,
+            "message": "2025-12-07T04:11:29.957Z\t17dc516b-329b-4b6a-a634-2103f7f9452d\tINFO\t{\"event\":\"s3_streaming_storage_end\",\"bucket\":\"resume-forge-data-ats\",\"key\":\"cv/candidate/22a560f4-1c00-4957-bbe0-230b7b47f5b2/incoming/original.pdf\",\"chunks\":1,\"timestamp\":1765080689956}\n",
+            "ingestionTime": 1765080693295
+        },
+        {
+            "timestamp": 1765080689957,
+            "message": "2025-12-07T04:11:29.957Z\t17dc516b-329b-4b6a-a634-2103f7f9452d\tINFO\t{\"event\":\"s3_streaming_storage_stripping_metadata\",\"size\":316925}\n",
+            "ingestionTime": 1765080693295
+        },
+        {
+            "timestamp": 1765080689979,
+            "message": "2025-12-07T04:11:29.979Z\t17dc516b-329b-4b6a-a634-2103f7f9452d\tINFO\t{\"event\":\"s3_streaming_storage_metadata_stripped\",\"originalSize\":316925,\"newSize\":317447,\"durationMs\":22}\n",
+            "ingestionTime": 1765080693295
+        },
+        {
+            "timestamp": 1765080689979,
+            "message": "2025-12-07T04:11:29.979Z\t17dc516b-329b-4b6a-a634-2103f7f9452d\tINFO\t{\"event\":\"s3_streaming_storage_uploading\",\"bucket\":\"resume-forge-data-ats\",\"key\":\"cv/candidate/22a560f4-1c00-4957-bbe0-230b7b47f5b2/incoming/original.pdf\",\"streaming\":true}\n",
+            "ingestionTime": 1765080693295
+        },
+        {
+            "timestamp": 1765080690057,
+            "message": "2025-12-07T04:11:30.057Z\t17dc516b-329b-4b6a-a634-2103f7f9452d\tINFO\t{\"event\":\"s3_streaming_storage_uploaded\",\"bucket\":\"resume-forge-data-ats\",\"key\":\"cv/candidate/22a560f4-1c00-4957-bbe0-230b7b47f5b2/incoming/original.pdf\",\"uploadDurationMs\":78,\"totalDurationMs\":101}\n",
+            "ingestionTime": 1765080693295
+        },
+        {
+            "timestamp": 1765080690089,
+            "message": "2025-12-07T04:11:30.089Z\t17dc516b-329b-4b6a-a634-2103f7f9452d\tINFO\t{\"timestamp\":\"2025-12-07T04:11:30.089Z\",\"level\":\"info\",\"message\":\"user_template_preference_loaded\",\"requestId\":\"22a560f4-1c00-4957-bbe0-230b7b47f5b2\",\"jobId\":\"75a24ce2-0b2d-47f2-a75c-0fdc89165dba\",\"userId\":\"77a57978-900d-4867-8b3a-d52205155efc\",\"userPreferenceKey\":\"user_template#77a57978-900d-4867-8b3a-d52205155efc\",\"template\":\"modern\",\"session\":\"75a24ce2-0b2d-47f2-a75c-0fdc89165dba\",\"build\":\"429\",\"artifactType\":\"none\",\"metadata\":{\"template\":\"modern\",\"session\":\"75a24ce2-0b2d-47f2-a75c-0fdc89165dba\",\"build\":\"429\",\"artifactType\":\"none\"}}\n",
+            "ingestionTime": 1765080693295
+        },
+        {
+            "timestamp": 1765080690091,
+            "message": "2025-12-07T04:11:30.091Z\t17dc516b-329b-4b6a-a634-2103f7f9452d\tINFO\t{\"timestamp\":\"2025-12-07T04:11:30.091Z\",\"level\":\"info\",\"message\":\"process_cv_started\",\"requestId\":\"22a560f4-1c00-4957-bbe0-230b7b47f5b2\",\"jobId\":\"75a24ce2-0b2d-47f2-a75c-0fdc89165dba\",\"userId\":\"77a57978-900d-4867-8b3a-d52205155efc\",\"manualJobDescriptionProvided\":true,\"template\":\"unknown\",\"session\":\"75a24ce2-0b2d-47f2-a75c-0fdc89165dba\",\"build\":\"429\",\"artifactType\":\"none\",\"metadata\":{\"template\":\"unknown\",\"session\":\"75a24ce2-0b2d-47f2-a75c-0fdc89165dba\",\"build\":\"429\",\"artifactType\":\"none\"}}\n",
+            "ingestionTime": 1765080693295
+        },
+        {
+            "timestamp": 1765080690091,
+            "message": "2025-12-07T04:11:30.091Z\t17dc516b-329b-4b6a-a634-2103f7f9452d\tINFO\t{\"timestamp\":\"2025-12-07T04:11:30.091Z\",\"level\":\"info\",\"message\":\"template_selection\",\"requestId\":\"22a560f4-1c00-4957-bbe0-230b7b47f5b2\",\"jobId\":\"75a24ce2-0b2d-47f2-a75c-0fdc89165dba\",\"userId\":\"77a57978-900d-4867-8b3a-d52205155efc\",\"template1\":\"modern\",\"template2\":\"professional\",\"coverTemplate1\":\"cover_modern\",\"coverTemplate2\":\"cover_classic\",\"availableCvTemplates\":[\"modern\",\"professional\",\"classic\",\"ats\",\"2025\"],\"availableCoverTemplates\":[\"cover_modern\",\"cover_classic\",\"cover_professional\",\"cover_ats\",\"cover_2025\"],\"template\":\"modern\",\"session\":\"75a24ce2-0b2d-47f2-a75c-0fdc89165dba\",\"build\":\"429\",\"artifactType\":\"none\",\"metadata\":{\"template\":\"modern\",\"session\":\"75a24ce2-0b2d-47f2-a75c-0fdc89165dba\",\"build\":\"429\",\"artifactType\":\"none\"}}\n",
+            "ingestionTime": 1765080693295
+        },
+        {
+            "timestamp": 1765080690091,
+            "message": "2025-12-07T04:11:30.091Z\t17dc516b-329b-4b6a-a634-2103f7f9452d\tWARN\t{\"timestamp\":\"2025-12-07T04:11:30.091Z\",\"level\":\"warn\",\"message\":\"initial_upload_content_type_adjusted\",\"requestId\":\"22a560f4-1c00-4957-bbe0-230b7b47f5b2\",\"jobId\":\"75a24ce2-0b2d-47f2-a75c-0fdc89165dba\",\"userId\":\"77a57978-900d-4867-8b3a-d52205155efc\",\"originalContentType\":\"application/pdf\",\"normalizedContentType\":\"application/octet-stream\",\"template\":\"unknown\",\"session\":\"75a24ce2-0b2d-47f2-a75c-0fdc89165dba\",\"build\":\"429\",\"artifactType\":\"none\",\"metadata\":{\"template\":\"unknown\",\"session\":\"75a24ce2-0b2d-47f2-a75c-0fdc89165dba\",\"build\":\"429\",\"artifactType\":\"none\"}}\n",
+            "ingestionTime": 1765080693295
+        },
+        {
+            "timestamp": 1765080690218,
+            "message": "2025-12-07T04:11:30.218Z\t17dc516b-329b-4b6a-a634-2103f7f9452d\tINFO\t{\"timestamp\":\"2025-12-07T04:11:30.218Z\",\"level\":\"info\",\"message\":\"initial_upload_completed\",\"requestId\":\"22a560f4-1c00-4957-bbe0-230b7b47f5b2\",\"jobId\":\"75a24ce2-0b2d-47f2-a75c-0fdc89165dba\",\"userId\":\"77a57978-900d-4867-8b3a-d52205155efc\",\"bucket\":\"resume-forge-data-ats\",\"key\":\"cv/candidate/22a560f4-1c00-4957-bbe0-230b7b47f5b2/incoming/original.pdf\",\"template\":\"unknown\",\"session\":\"75a24ce2-0b2d-47f2-a75c-0fdc89165dba\",\"build\":\"429\",\"artifactType\":\"none\",\"metadata\":{\"template\":\"unknown\",\"session\":\"75a24ce2-0b2d-47f2-a75c-0fdc89165dba\",\"build\":\"429\",\"artifactType\":\"none\"}}\n",
+            "ingestionTime": 1765080693295
+        },
+        {
+            "timestamp": 1765080690244,
+            "message": "2025-12-07T04:11:30.244Z\t17dc516b-329b-4b6a-a634-2103f7f9452d\tINFO\t{\"timestamp\":\"2025-12-07T04:11:30.243Z\",\"level\":\"info\",\"message\":\"resume_text_extracted\",\"requestId\":\"22a560f4-1c00-4957-bbe0-230b7b47f5b2\",\"jobId\":\"75a24ce2-0b2d-47f2-a75c-0fdc89165dba\",\"userId\":\"77a57978-900d-4867-8b3a-d52205155efc\",\"characters\":3486,\"template\":\"unknown\",\"session\":\"75a24ce2-0b2d-47f2-a75c-0fdc89165dba\",\"build\":\"429\",\"artifactType\":\"none\",\"metadata\":{\"template\":\"unknown\",\"session\":\"75a24ce2-0b2d-47f2-a75c-0fdc89165dba\",\"build\":\"429\",\"artifactType\":\"none\"}}\n",
+            "ingestionTime": 1765080693295
+        },
+        {
+            "timestamp": 1765080690349,
+            "message": "2025-12-07T04:11:30.349Z\t17dc516b-329b-4b6a-a634-2103f7f9452d\tWARN\t{\"timestamp\":\"2025-12-07T04:11:30.349Z\",\"level\":\"warn\",\"message\":\"document_classification_ai_failed\",\"requestId\":\"22a560f4-1c00-4957-bbe0-230b7b47f5b2\",\"jobId\":\"75a24ce2-0b2d-47f2-a75c-0fdc89165dba\",\"userId\":\"77a57978-900d-4867-8b3a-d52205155efc\",\"error\":{\"name\":\"Error\",\"message\":\"[GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent: [404 Not Found] models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.\",\"stack\":\"Error: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent: [404 Not Found] models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.\\n    at F5r (file:///var/task/lambdas/resumeUpload.mjs:614:22510)\\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\\n    at async GSe (file:///var/task/lambdas/resumeUpload.mjs:614:27930)\\n    at async _h (file:///var/task/lambdas/resumeUpload.mjs:609:7914)\\n    at async vl (file:///var/task/lambdas/resumeUpload.mjs:614:34767)\\n    at async $Se (file:///var/task/lambdas/resumeUpload.mjs:626:2895)\\n    at async file:///var/task/lambdas/resumeUpload.mjs:888:33040\"},\"template\":\"unknown\",\"session\":\"75a24ce2-0b2d-47f2-a75c-0fdc89165dba\",\"build\":\"429\",\"artifactType\":\"none\",\"metadata\":{\"template\":\"unknown\",\"session\":\"75a24ce2-0b2d-47f2-a75c-0fdc89165dba\",\"build\":\"429\",\"artifactType\":\"none\"}}\n",
+            "ingestionTime": 1765080693295
+        },
+        {
+            "timestamp": 1765080690349,
+            "message": "2025-12-07T04:11:30.349Z\t17dc516b-329b-4b6a-a634-2103f7f9452d\tINFO\t{\"timestamp\":\"2025-12-07T04:11:30.349Z\",\"level\":\"info\",\"message\":\"resume_classified\",\"requestId\":\"22a560f4-1c00-4957-bbe0-230b7b47f5b2\",\"jobId\":\"75a24ce2-0b2d-47f2-a75c-0fdc89165dba\",\"userId\":\"77a57978-900d-4867-8b3a-d52205155efc\",\"isResume\":true,\"description\":\"a professional resume\",\"confidence\":0.6,\"accepted\":true,\"overridden\":false,\"template\":\"unknown\",\"session\":\"75a24ce2-0b2d-47f2-a75c-0fdc89165dba\",\"build\":\"429\",\"artifactType\":\"none\",\"metadata\":{\"template\":\"unknown\",\"session\":\"75a24ce2-0b2d-47f2-a75c-0fdc89165dba\",\"build\":\"429\",\"artifactType\":\"none\"}}\n",
+            "ingestionTime": 1765080693295
+        },
+        {
+            "timestamp": 1765080690498,
+            "message": "2025-12-07T04:11:30.498Z\t17dc516b-329b-4b6a-a634-2103f7f9452d\tINFO\t{\"timestamp\":\"2025-12-07T04:11:30.498Z\",\"level\":\"info\",\"message\":\"raw_upload_relocated\",\"requestId\":\"22a560f4-1c00-4957-bbe0-230b7b47f5b2\",\"jobId\":\"75a24ce2-0b2d-47f2-a75c-0fdc89165dba\",\"userId\":\"77a57978-900d-4867-8b3a-d52205155efc\",\"bucket\":\"resume-forge-data-ats\",\"fromKey\":\"cv/candidate/22a560f4-1c00-4957-bbe0-230b7b47f5b2/incoming/original.pdf\",\"toKey\":\"cv/pushkar_mishra/22a560f4-1c00-4957-bbe0-230b7b47f5b2/original.pdf\",\"template\":\"unknown\",\"session\":\"75a24ce2-0b2d-47f2-a75c-0fdc89165dba\",\"build\":\"429\",\"artifactType\":\"none\",\"metadata\":{\"template\":\"unknown\",\"session\":\"75a24ce2-0b2d-47f2-a75c-0fdc89165dba\",\"build\":\"429\",\"artifactType\":\"none\"}}\n",
+            "ingestionTime": 1765080693295
+        },
+        {
+            "timestamp": 1765080690509,
+            "message": "2025-12-07T04:11:30.509Z\t17dc516b-329b-4b6a-a634-2103f7f9452d\tINFO\t{\"timestamp\":\"2025-12-07T04:11:30.509Z\",\"level\":\"info\",\"message\":\"dynamo_initial_record_written\",\"requestId\":\"22a560f4-1c00-4957-bbe0-230b7b47f5b2\",\"jobId\":\"75a24ce2-0b2d-47f2-a75c-0fdc89165dba\",\"userId\":\"77a57978-900d-4867-8b3a-d52205155efc\",\"bucket\":\"resume-forge-data-ats\",\"key\":\"cv/pushkar_mishra/22a560f4-1c00-4957-bbe0-230b7b47f5b2/original.pdf\",\"template\":\"unknown\",\"session\":\"75a24ce2-0b2d-47f2-a75c-0fdc89165dba\",\"build\":\"429\",\"artifactType\":\"none\",\"metadata\":{\"template\":\"unknown\",\"session\":\"75a24ce2-0b2d-47f2-a75c-0fdc89165dba\",\"build\":\"429\",\"artifactType\":\"none\"}}\n",
+            "ingestionTime": 1765080693295
+        },
+        {
+            "timestamp": 1765080690580,
+            "message": "2025-12-07T04:11:30.580Z\t17dc516b-329b-4b6a-a634-2103f7f9452d\tINFO\t{\"timestamp\":\"2025-12-07T04:11:30.580Z\",\"level\":\"info\",\"message\":\"upload_metadata_written\",\"requestId\":\"22a560f4-1c00-4957-bbe0-230b7b47f5b2\",\"jobId\":\"75a24ce2-0b2d-47f2-a75c-0fdc89165dba\",\"userId\":\"77a57978-900d-4867-8b3a-d52205155efc\",\"bucket\":\"resume-forge-data-ats\",\"key\":\"cv/pushkar_mishra/22a560f4-1c00-4957-bbe0-230b7b47f5b2/logs/log.json\",\"template\":\"unknown\",\"session\":\"75a24ce2-0b2d-47f2-a75c-0fdc89165dba\",\"build\":\"429\",\"artifactType\":\"none\",\"metadata\":{\"template\":\"unknown\",\"session\":\"75a24ce2-0b2d-47f2-a75c-0fdc89165dba\",\"build\":\"429\",\"artifactType\":\"none\"}}\n",
+            "ingestionTime": 1765080693295
+        },
+        {
+            "timestamp": 1765080690649,
+            "message": "2025-12-07T04:11:30.649Z\t17dc516b-329b-4b6a-a634-2103f7f9452d\tINFO\t{\"timestamp\":\"2025-12-07T04:11:30.649Z\",\"level\":\"info\",\"message\":\"session_transition_change_log_removed\",\"requestId\":\"22a560f4-1c00-4957-bbe0-230b7b47f5b2\",\"jobId\":\"75a24ce2-0b2d-47f2-a75c-0fdc89165dba\",\"userId\":\"77a57978-900d-4867-8b3a-d52205155efc\",\"bucket\":\"resume-forge-data-ats\",\"removedKeys\":[\"cv/pushkar_mishra/f9d97cef-6981-4a2b-88f1-965daff8cac6/logs/change-log.json\"],\"template\":\"unknown\",\"session\":\"75a24ce2-0b2d-47f2-a75c-0fdc89165dba\",\"build\":\"429\",\"artifactType\":\"none\",\"metadata\":{\"template\":\"unknown\",\"session\":\"75a24ce2-0b2d-47f2-a75c-0fdc89165dba\",\"build\":\"429\",\"artifactType\":\"none\"}}\n",
+            "ingestionTime": 1765080693295
+        },
+        {
+            "timestamp": 1765080690753,
+            "message": "2025-12-07T04:11:30.753Z\t17dc516b-329b-4b6a-a634-2103f7f9452d\tINFO\t{\"timestamp\":\"2025-12-07T04:11:30.752Z\",\"level\":\"info\",\"message\":\"job_description_supplied_manually\",\"requestId\":\"22a560f4-1c00-4957-bbe0-230b7b47f5b2\",\"jobId\":\"75a24ce2-0b2d-47f2-a75c-0fdc89165dba\",\"userId\":\"77a57978-900d-4867-8b3a-d52205155efc\",\"characters\":5645,\"template\":\"unknown\",\"session\":\"75a24ce2-0b2d-47f2-a75c-0fdc89165dba\",\"build\":\"429\",\"artifactType\":\"none\",\"metadata\":{\"template\":\"unknown\",\"session\":\"75a24ce2-0b2d-47f2-a75c-0fdc89165dba\",\"build\":\"429\",\"artifactType\":\"none\"}}\n",
+            "ingestionTime": 1765080693295
+        },
+        {
+            "timestamp": 1765080690800,
+            "message": "2025-12-07T04:11:30.800Z\t17dc516b-329b-4b6a-a634-2103f7f9452d\tINFO\t{\"timestamp\":\"2025-12-07T04:11:30.800Z\",\"level\":\"info\",\"message\":\"job_description_analyzed\",\"requestId\":\"22a560f4-1c00-4957-bbe0-230b7b47f5b2\",\"jobId\":\"75a24ce2-0b2d-47f2-a75c-0fdc89165dba\",\"userId\":\"77a57978-900d-4867-8b3a-d52205155efc\",\"jobTitle\":\"\",\"jobSkills\":5,\"template\":\"unknown\",\"session\":\"75a24ce2-0b2d-47f2-a75c-0fdc89165dba\",\"build\":\"429\",\"artifactType\":\"none\",\"metadata\":{\"template\":\"unknown\",\"session\":\"75a24ce2-0b2d-47f2-a75c-0fdc89165dba\",\"build\":\"429\",\"artifactType\":\"none\"}}\n",
+            "ingestionTime": 1765080693295
+        },
+        {
+            "timestamp": 1765080690803,
+            "message": "2025-12-07T04:11:30.803Z\t17dc516b-329b-4b6a-a634-2103f7f9452d\tINFO\t{\"timestamp\":\"2025-12-07T04:11:30.803Z\",\"level\":\"info\",\"message\":\"resume_skills_analyzed\",\"requestId\":\"22a560f4-1c00-4957-bbe0-230b7b47f5b2\",\"jobId\":\"75a24ce2-0b2d-47f2-a75c-0fdc89165dba\",\"userId\":\"77a57978-900d-4867-8b3a-d52205155efc\",\"resumeSkills\":7,\"originalMatchScore\":60,\"template\":\"unknown\",\"session\":\"75a24ce2-0b2d-47f2-a75c-0fdc89165dba\",\"build\":\"429\",\"artifactType\":\"none\",\"metadata\":{\"template\":\"unknown\",\"session\":\"75a24ce2-0b2d-47f2-a75c-0fdc89165dba\",\"build\":\"429\",\"artifactType\":\"none\"}}\n",
+            "ingestionTime": 1765080693295
+        },
+        {
+            "timestamp": 1765080690803,
+            "message": "2025-12-07T04:11:30.803Z\t17dc516b-329b-4b6a-a634-2103f7f9452d\tINFO\t{\"timestamp\":\"2025-12-07T04:11:30.803Z\",\"level\":\"info\",\"message\":\"resume_upload_async_enqueued\",\"requestId\":\"22a560f4-1c00-4957-bbe0-230b7b47f5b2\",\"jobId\":\"75a24ce2-0b2d-47f2-a75c-0fdc89165dba\",\"userId\":\"77a57978-900d-4867-8b3a-d52205155efc\",\"jobTitle\":\"\",\"jobSkills\":5,\"manualCertificates\":0,\"credlyAttempted\":false,\"template\":\"unknown\",\"session\":\"75a24ce2-0b2d-47f2-a75c-0fdc89165dba\",\"build\":\"429\",\"artifactType\":\"none\",\"metadata\":{\"template\":\"unknown\",\"session\":\"75a24ce2-0b2d-47f2-a75c-0fdc89165dba\",\"build\":\"429\",\"artifactType\":\"none\"}}\n",
+            "ingestionTime": 1765080693295
+        },
+        {
+            "timestamp": 1765080690803,
+            "message": "2025-12-07T04:11:30.803Z\t17dc516b-329b-4b6a-a634-2103f7f9452d\tINFO\t{\"timestamp\":\"2025-12-07T04:11:30.803Z\",\"level\":\"info\",\"message\":\"http_request_completed\",\"requestId\":\"22a560f4-1c00-4957-bbe0-230b7b47f5b2\",\"method\":\"POST\",\"path\":\"/api/process-cv\",\"statusCode\":202,\"durationMs\":848,\"contentLength\":\"10560\",\"template\":\"unknown\",\"session\":\"22a560f4-1c00-4957-bbe0-230b7b47f5b2\",\"build\":\"429\",\"artifactType\":\"none\",\"metadata\":{\"template\":\"unknown\",\"session\":\"22a560f4-1c00-4957-bbe0-230b7b47f5b2\",\"build\":\"429\",\"artifactType\":\"none\"}}\n",
+            "ingestionTime": 1765080693295
+        },
+        {
+            "timestamp": 1765080690804,
+            "message": "2025-12-07T04:11:30.804Z\t17dc516b-329b-4b6a-a634-2103f7f9452d\tINFO\tLambda invocation completed {\n  invocationId: '6b89831a-bf71-42bc-a573-420dc3fc8c03',\n  functionName: 'ResumeForge-prod-resume-upload',\n  requestId: '4c6f9f2b-a8fd-48f7-86e9-185a21565796',\n  sessionId: '',\n  jobId: '',\n  durationMs: 850,\n  operationGroup: undefined,\n  coldStart: false\n}\n",
+            "ingestionTime": 1765080693295
+        },
+        {
+            "timestamp": 1765080690804,
+            "message": "2025-12-07T04:11:30.804Z\t17dc516b-329b-4b6a-a634-2103f7f9452d\tINFO\tAPI gateway response summary {\n  invocationId: '6b89831a-bf71-42bc-a573-420dc3fc8c03',\n  functionName: 'ResumeForge-prod-resume-upload',\n  requestId: '4c6f9f2b-a8fd-48f7-86e9-185a21565796',\n  sessionId: '',\n  jobId: '',\n  durationMs: 850,\n  method: 'POST',\n  path: '/api/process-cv',\n  pathCategory: '/api/process-cv',\n  statusCode: 202,\n  contentLength: 10560,\n  sessionCount: 0,\n  downloadCount: 0\n}\n",
+            "ingestionTime": 1765080693295
+        },
+        {
+            "timestamp": 1765080690907,
+            "message": "2025-12-07T04:11:30.907Z\t17dc516b-329b-4b6a-a634-2103f7f9452d\tWARN\tFailed to publish lambda metrics {\n  functionName: 'ResumeForge-prod-resume-upload',\n  stage: 'prod',\n  errorMessage: 'User: arn:aws:sts::957650740525:assumed-role/ResumeForge-ResumeForgeFunctionRole-I1oDcO54aMSa/ResumeForge-prod-resume-upload is not authorized to perform: cloudwatch:PutMetricData because no identity-based policy allows the cloudwatch:PutMetricData action'\n}\n",
+            "ingestionTime": 1765080693295
+        },
+        {
+            "timestamp": 1765080690909,
+            "message": "END RequestId: 17dc516b-329b-4b6a-a634-2103f7f9452d\n",
+            "ingestionTime": 1765080693295
+        },
+        {
+            "timestamp": 1765080690909,
+            "message": "REPORT RequestId: 17dc516b-329b-4b6a-a634-2103f7f9452d\tDuration: 1000.25 ms\tBilled Duration: 1001 ms\tMemory Size: 2048 MB\tMax Memory Used: 360 MB\t\n",
+            "ingestionTime": 1765080693295
+        }
+    ],
+    "nextForwardToken": "f/39362614742807996668390021327815575354890074966305669322/s",
+    "nextBackwardToken": "b/39362614721533085748991806850790500122783538089600352429/s"
+}

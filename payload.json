@@ -1,0 +1,17 @@
+{
+    "httpMethod": "GET",
+    "path": "/api/job-status",
+    "queryStringParameters": {
+        "jobId": "ca452764-ee33-4cbc-87ab-b9ee49977bcd"
+    },
+    "multiValueQueryStringParameters": {
+        "jobId": [
+            "ca452764-ee33-4cbc-87ab-b9ee49977bcd"
+        ]
+    },
+    "requestContext": {
+        "http": {
+            "method": "GET"
+        }
+    }
+}
