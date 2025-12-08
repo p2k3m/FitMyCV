@@ -1,29 +1,21 @@
-import { DynamoDBStreamEvent, DynamoDBRecord, Context } from 'aws-lambda';
-import { SFNClient, StartExecutionCommand } from '@aws-sdk/client-sfn';
-import { unmarshall } from '@aws-sdk/util-dynamodb';
-
-const sfnClient = new SFNClient({ region: process.env.AWS_REGION || 'ap-south-1' });
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.handler = void 0;
+const client_sfn_1 = require("@aws-sdk/client-sfn");
+const util_dynamodb_1 = require("@aws-sdk/util-dynamodb");
+const sfnClient = new client_sfn_1.SFNClient({ region: process.env.AWS_REGION || 'ap-south-1' });
 const STATE_MACHINE_ARN = process.env.STATE_MACHINE_ARN ||
     'arn:aws:states:ap-south-1:957650740525:stateMachine:ResumeForge-resume-flow';
-
-interface JobRecord {
-    jobId: string;
-    status: string;
-    resumePath?: string;
-    jobDescription?: string;
-    [key: string]: any;
-}
-
-export const handler = async (event: DynamoDBStreamEvent, context: Context): Promise<void> => {
+const handler = async (event, context) => {
     console.log('DynamoDB Stream event received', {
         recordCount: event.Records.length,
         requestId: context.requestId
     });
-
     for (const record of event.Records) {
         try {
             await processRecord(record);
-        } catch (error) {
+        }
+        catch (error) {
             console.error('Failed to process record', {
                 eventID: record.eventID,
                 error: error instanceof Error ? error.message : 'Unknown error',
@@ -33,8 +25,8 @@ export const handler = async (event: DynamoDBStreamEvent, context: Context): Pro
         }
     }
 };
-
-async function processRecord(record: DynamoDBRecord): Promise<void> {
+exports.handler = handler;
+async function processRecord(record) {
     // Process INSERT and MODIFY events
     if (record.eventName !== 'INSERT' && record.eventName !== 'MODIFY') {
         console.log('Skipping non-INSERT/MODIFY event', {
@@ -43,15 +35,12 @@ async function processRecord(record: DynamoDBRecord): Promise<void> {
         });
         return;
     }
-
     if (!record.dynamodb?.NewImage) {
         console.warn('No NewImage in record', { eventID: record.eventID });
         return;
     }
-
     // Unmarshal DynamoDB record
-    const newItem = unmarshall(record.dynamodb.NewImage as any) as JobRecord;
-
+    const newItem = (0, util_dynamodb_1.unmarshall)(record.dynamodb.NewImage);
     // Only trigger for jobs with status 'uploaded'
     if (newItem.status !== 'uploaded') {
         console.log('Skipping job with non-uploaded status', {
@@ -60,13 +49,11 @@ async function processRecord(record: DynamoDBRecord): Promise<void> {
         });
         return;
     }
-
     console.log('Processing new job', {
         jobId: newItem.jobId,
         status: newItem.status,
         hasJobDescription: !!newItem.jobDescription
     });
-
     // Prepare Step Function input
     const input = {
         jobId: newItem.jobId,
@@ -75,29 +62,26 @@ async function processRecord(record: DynamoDBRecord): Promise<void> {
         bucket: newItem.bucket || process.env.S3_BUCKET || 'resume-forge-data-ats',
         requestId: newItem.requestId || newItem.jobId
     };
-
     // Generate unique execution name
     const executionName = `job-${newItem.jobId}-${Date.now()}`;
-
     try {
-        const command = new StartExecutionCommand({
+        const command = new client_sfn_1.StartExecutionCommand({
             stateMachineArn: STATE_MACHINE_ARN,
             name: executionName,
             input: JSON.stringify(input)
         });
-
         const result = await sfnClient.send(command);
-
         console.log('Step Function execution started', {
             jobId: newItem.jobId,
             executionArn: result.executionArn,
             executionName
         });
-    } catch (error) {
+    }
+    catch (error) {
         console.error('Failed to start Step Function execution', {
             jobId: newItem.jobId,
             error: error instanceof Error ? error.message : 'Unknown error',
-            errorCode: (error as any)?.name,
+            errorCode: error?.name,
             stack: error instanceof Error ? error.stack : undefined
         });
         throw error; // Re-throw to mark as failed in DynamoDB Streams
