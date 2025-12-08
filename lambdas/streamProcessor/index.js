@@ -26,9 +26,9 @@ exports.handler = async (event, context) => {
 };
 
 async function processRecord(record) {
-    // Only process INSERT events
-    if (record.eventName !== 'INSERT') {
-        console.log('Skipping non-INSERT event', {
+    // Process INSERT and MODIFY events
+    if (record.eventName !== 'INSERT' && record.eventName !== 'MODIFY') {
+        console.log('Skipping non-INSERT/MODIFY event', {
             eventName: record.eventName,
             eventID: record.eventID
         });
