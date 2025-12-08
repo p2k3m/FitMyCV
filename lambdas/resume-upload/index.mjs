@@ -69,6 +69,23 @@ function parseMultipart(body, headers) {
 export const handler = async (event) => {
     console.log('Upload Handler Event:', JSON.stringify({ ...event, body: '[HIDDEN]' }));
 
+    // Dynamic CORS Origin
+    const origin = event.headers.origin || event.headers.Origin || '*';
+
+    // Handle OPTIONS (Preflight)
+    if (event.httpMethod === 'OPTIONS') {
+        return {
+            statusCode: 200,
+            headers: {
+                "Access-Control-Allow-Origin": origin,
+                "Access-Control-Allow-Methods": "POST, OPTIONS",
+                "Access-Control-Allow-Headers": "Content-Type, X-Amz-Date, Authorization, X-Api-Key, X-Amz-Security-Token",
+                "Access-Control-Allow-Credentials": "true"
+            },
+            body: JSON.stringify({ message: "CORS preflight check successful" })
+        };
+    }
+
     try {
         const bodyContent = event.isBase64Encoded ? Buffer.from(event.body, 'base64') : event.body;
         const parts = parseMultipart(bodyContent, event.headers);
@@ -79,6 +96,10 @@ export const handler = async (event) => {
         if (!resumePart) {
             return {
                 statusCode: 400,
+                headers: {
+                    "Access-Control-Allow-Origin": origin,
+                    "Access-Control-Allow-Credentials": "true"
+                },
                 body: JSON.stringify({ success: false, error: 'Missing resume file' })
             };
         }
@@ -125,8 +146,8 @@ export const handler = async (event) => {
         return {
             statusCode: 200,
             headers: {
-                "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Credentials": true
+                "Access-Control-Allow-Origin": origin,
+                "Access-Control-Allow-Credentials": "true"
             },
             body: JSON.stringify({
                 success: true,
@@ -144,7 +165,10 @@ export const handler = async (event) => {
         console.error('Upload Error:', error);
         return {
             statusCode: 500,
-            headers: { "Access-Control-Allow-Origin": "*" },
+            headers: {
+                "Access-Control-Allow-Origin": origin,
+                "Access-Control-Allow-Credentials": "true"
+            },
             body: JSON.stringify({ success: false, error: error.message })
         };
     }
