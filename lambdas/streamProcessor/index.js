@@ -55,15 +55,16 @@ async function processRecord(record) {
     console.log('Processing new job', {
         jobId: newItem.jobId,
         status: newItem.status,
-        hasJobDescription: !!newItem.jobDescription
+        hasJobDescription: !!newItem.jobDescription,
+        itemKeys: Object.keys(newItem)
     });
 
     // Prepare Step Function input
     const input = {
         jobId: newItem.jobId,
-        resumePath: newItem.resumePath || newItem.key || '',
+        resumePath: newItem.resumePath || newItem.key || newItem.s3Key || '',
         jobDescription: newItem.jobDescription || '',
-        bucket: newItem.bucket || process.env.S3_BUCKET || 'resume-forge-data-ats',
+        bucket: newItem.bucket || newItem.s3Bucket || process.env.S3_BUCKET || 'resume-forge-data-ats',
         requestId: newItem.requestId || newItem.jobId
     };
 
