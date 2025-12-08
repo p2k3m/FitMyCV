@@ -123,6 +123,35 @@ jobs:
           
           echo "Lambda function updated successfully"
 
+      - name: Deploy StreamProcessor
+        env:
+          AWS_DEFAULT_REGION: ap-south-1
+        run: |
+          set -euo pipefail
+          echo "Deploying StreamProcessor..."
+          
+          # Build and zip
+          cd lambdas/streamProcessor
+          npm ci --omit=dev
+          # Use index.js as it is the main file
+          zip -r ../streamProcessor.zip index.js node_modules
+          cd ../..
+          
+          # Update Lambda Code
+          aws lambda update-function-code \
+            --region ap-south-1 \
+            --function-name "ResumeForge-DynamoDBStreamProcessor" \
+            --zip-file "fileb://lambdas/streamProcessor.zip" \
+            --output json \
+            --query '{FunctionName:FunctionName,LastModified:LastModified}'
+            
+          # Wait for update
+          aws lambda wait function-updated \
+            --region ap-south-1 \
+            --function-name "ResumeForge-DynamoDBStreamProcessor"
+          
+          echo "StreamProcessor deployed successfully"
+
       - name: Update Workflow Lambda IAM Permissions
         env:
           AWS_DEFAULT_REGION: ap-south-1

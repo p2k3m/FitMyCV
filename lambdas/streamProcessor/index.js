@@ -63,7 +63,7 @@ async function processRecord(record) {
     const input = {
         jobId: newItem.jobId,
         resumePath: newItem.resumePath || newItem.key || newItem.s3Key || '',
-        jobDescription: newItem.jobDescription || '',
+        jobDescription: newItem.jobDescription || newItem.sessionInputs?.jobDescription || '',
         bucket: newItem.bucket || newItem.s3Bucket || process.env.S3_BUCKET || 'resume-forge-data-ats',
         requestId: newItem.requestId || newItem.jobId
     };
