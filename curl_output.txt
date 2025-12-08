@@ -3,9 +3,9 @@ Note: Unnecessary use of -X or --request, POST is already inferred.
                                  Dload  Upload   Total   Spent    Left  Speed
   0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0* Host j3a7m3jz11.execute-api.ap-south-1.amazonaws.com:443 was resolved.
 * IPv6: (none)
-* IPv4: 43.205.53.70, 3.7.192.110, 3.108.189.126, 15.207.129.7
-*   Trying 43.205.53.70:443...
-* Connected to j3a7m3jz11.execute-api.ap-south-1.amazonaws.com (43.205.53.70) port 443
+* IPv4: 13.235.186.43, 43.204.127.23
+*   Trying 13.235.186.43:443...
+* Connected to j3a7m3jz11.execute-api.ap-south-1.amazonaws.com (13.235.186.43) port 443
 * ALPN: curl offers h2,http/1.1
 * (304) (OUT), TLS handshake, Client hello (1):
 } [352 bytes data]
@@ -41,29 +41,29 @@ Note: Unnecessary use of -X or --request, POST is already inferred.
 * [HTTP/2] [1] [user-agent: curl/8.7.1]
 * [HTTP/2] [1] [accept: */*]
 * [HTTP/2] [1] [content-length: 13624]
-* [HTTP/2] [1] [content-type: multipart/form-data; boundary=------------------------hlxvqOZV5XKZjsV4XReamY]
+* [HTTP/2] [1] [content-type: multipart/form-data; boundary=------------------------nZRkRGa5DgYFIMW4p5YMjO]
 > POST /prod/api/process-cv HTTP/2
 > Host: j3a7m3jz11.execute-api.ap-south-1.amazonaws.com
 > User-Agent: curl/8.7.1
 > Accept: */*
 > Content-Length: 13624
-> Content-Type: multipart/form-data; boundary=------------------------hlxvqOZV5XKZjsV4XReamY
+> Content-Type: multipart/form-data; boundary=------------------------nZRkRGa5DgYFIMW4p5YMjO
 > 
 } [13624 bytes data]
 * upload completely sent off: 13624 bytes
-100 13624    0     0  100 13624      0  12429  0:00:01  0:00:01 --:--:-- 12442< HTTP/2 202 
-< date: Mon, 08 Dec 2025 08:08:54 GMT
+100 13624    0     0  100 13624      0  12201  0:00:01  0:00:01 --:--:-- 12207< HTTP/2 202 
+< date: Mon, 08 Dec 2025 08:39:30 GMT
 < content-type: application/json; charset=utf-8
 < content-length: 1468
-< x-amzn-requestid: 98f4c74b-4e83-49a3-a91d-149558c47a2c
+< x-amzn-requestid: 2f8b5f40-08fe-4d5a-a122-b3f89119a3d8
 < x-amzn-remapped-content-length: 1468
-< x-amz-apigw-id: VQofWEjYBcwEAOw=
+< x-amz-apigw-id: VQs-OFbtBcwEXUA=
 < vary: Origin
-< etag: W/"5bc-ge814Fvs0dnfQsz8ZFTrCF/Woq0"
+< etag: W/"5bc-us6jpLOzkWm5mp6q1RQEitZfpPY"
 < x-powered-by: Express
-< x-amzn-trace-id: Root=1-69368795-0c6be1ee116aee7833b23746;Parent=0f5aa370d8ca8fb2;Sampled=0;Lineage=1:872875c0:0
+< x-amzn-trace-id: Root=1-69368ec1-41ed7da965b3827f32165276;Parent=49956b8906abe189;Sampled=0;Lineage=1:872875c0:0
 < access-control-allow-credentials: true
 < 
 { [1468 bytes data]
-100 15092  100  1468  100 13624   1134  10526  0:00:01  0:00:01 --:--:-- 11663
+100 15092  100  1468  100 13624   1106  10270  0:00:01  0:00:01 --:--:-- 11381
 * Connection #0 to host j3a7m3jz11.execute-api.ap-south-1.amazonaws.com left intact

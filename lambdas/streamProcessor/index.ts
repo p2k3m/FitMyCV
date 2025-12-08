@@ -72,6 +72,7 @@ async function processRecord(record: DynamoDBRecord): Promise<void> {
         jobId: newItem.jobId,
         resumePath: newItem.resumePath || newItem.key || '',
         jobDescription: newItem.jobDescription || newItem.sessionInputs?.jobDescription || '',
+        jobSkills: newItem.jobSkills || [],
         bucket: newItem.bucket || process.env.S3_BUCKET || 'resume-forge-data-ats',
         requestId: newItem.requestId || newItem.jobId
     };

@@ -56,7 +56,8 @@ async function processRecord(record) {
         jobId: newItem.jobId,
         status: newItem.status,
         hasJobDescription: !!newItem.jobDescription,
-        itemKeys: Object.keys(newItem)
+        itemKeys: Object.keys(newItem),
+        newItemString: JSON.stringify(newItem)
     });
 
     // Prepare Step Function input
@@ -64,6 +65,7 @@ async function processRecord(record) {
         jobId: newItem.jobId,
         resumePath: newItem.resumePath || newItem.key || newItem.s3Key || '',
         jobDescription: newItem.jobDescription || newItem.sessionInputs?.jobDescription || '',
+        jobSkills: newItem.jobSkills || [],
         bucket: newItem.bucket || newItem.s3Bucket || process.env.S3_BUCKET || 'resume-forge-data-ats',
         requestId: newItem.requestId || newItem.jobId
     };
