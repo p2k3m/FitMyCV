@@ -90,6 +90,9 @@ jobs:
       - name: Package Lambda with Fonts
         run: |
           set -euo pipefail
+          # Copy the resume-upload code into the staging directory
+          cp lambdas/resume-upload/index.js lambda_extracted/index.js
+          
           cd lambda_extracted
           zip -r ../lambda_deployment.zip .
           cd ..
