@@ -91,7 +91,7 @@ jobs:
         run: |
           set -euo pipefail
           # Copy the resume-upload code into the staging directory
-          cp lambdas/resume-upload/index.js lambda_extracted/index.js
+          cp lambdas/resume-upload/index.mjs lambda_extracted/index.mjs
           
           cd lambda_extracted
           zip -r ../lambda_deployment.zip .
