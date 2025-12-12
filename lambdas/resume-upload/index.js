@@ -65,7 +65,8 @@ exports.handler = async (event) => {
     console.log('Upload Handler Event:', JSON.stringify({ ...event, body: '[HIDDEN]' }));
 
     // Dynamic CORS Origin
-    const origin = event.headers.origin || event.headers.Origin || '*';
+    const headers = event.headers || {};
+    const origin = headers.origin || headers.Origin || '*';
 
     // Handle OPTIONS (Preflight)
     if (event.httpMethod === 'OPTIONS') {
