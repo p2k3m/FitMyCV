@@ -1,7 +1,7 @@
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
-import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { DynamoDBDocumentClient, PutCommand } from "@aws-sdk/lib-dynamodb";
-import { randomUUID } from "crypto";
+const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
+const { DynamoDBClient } = require("@aws-sdk/client-dynamodb");
+const { DynamoDBDocumentClient, PutCommand } = require("@aws-sdk/lib-dynamodb");
+const { randomUUID } = require("crypto");
 
 const s3 = new S3Client({});
 const ddb = new DynamoDBClient({});
@@ -21,24 +21,19 @@ function parseMultipart(body, headers) {
     const boundaryBuffer = Buffer.from(`--${boundary}`);
     const parts = [];
 
-    let start = buffer.indexOf(boundaryBuffer) + boundaryBuffer.length; // Skip first boundary
+    let start = buffer.indexOf(boundaryBuffer) + boundaryBuffer.length;
     let end = buffer.indexOf(boundaryBuffer, start);
 
     while (end !== -1) {
-        // Part is between start and end
-        // But usually there is \r\n after boundary
-
-        // Find header end (\r\n\r\n)
         const headerEnd = buffer.indexOf('\r\n\r\n', start);
         if (headerEnd === -1 || headerEnd > end) {
-            // Malformed or no headers?
             break;
         }
 
         const headerBuffer = buffer.subarray(start, headerEnd);
-        const contentBuffer = buffer.subarray(headerEnd + 4, end - 2); // Exclude trailing \r\n before next boundary
+        const contentBuffer = buffer.subarray(headerEnd + 4, end - 2);
 
-        const headerStr = headerBuffer.toString('utf8').trim(); // Trim leading \r\n if any
+        const headerStr = headerBuffer.toString('utf8').trim();
         const headers = {};
 
         headerStr.split('\r\n').forEach(line => {
@@ -66,7 +61,7 @@ function parseMultipart(body, headers) {
     return parts;
 }
 
-export const handler = async (event) => {
+exports.handler = async (event) => {
     console.log('Upload Handler Event:', JSON.stringify({ ...event, body: '[HIDDEN]' }));
 
     // Dynamic CORS Origin
@@ -105,10 +100,9 @@ export const handler = async (event) => {
         }
 
         const jobId = randomUUID();
-        const bucket = process.env.S3_BUCKET || 'resume-forge-data-ats'; // Fallback from logs
+        const bucket = process.env.S3_BUCKET || 'resume-forge-data-ats';
         const key = `cv/${jobId}/original.pdf`;
 
-        // Upload to S3
         await s3.send(new PutObjectCommand({
             Bucket: bucket,
             Key: key,
@@ -116,24 +110,20 @@ export const handler = async (event) => {
             ContentType: resumePart.contentType || 'application/pdf'
         }));
 
-        // Get Job Description
         const jobDescription = jdPart ? jdPart.data.toString('utf8') : '';
-
-        // Write to DynamoDB (ResumeForgeLogs)
-        // Ensure we write enough data for StreamProcessor
-        const tableName = process.env.RESUME_TABLE_NAME;
+        const tableName = process.env.RESUME_TABLE_NAME || 'ResumeForgeLogs';
 
         const item = {
             jobId: jobId,
             timestamp: new Date().toISOString(),
             status: 'uploaded',
-            s3Key: key, // Crucial for StreamProcessor
+            s3Key: key,
             bucket: bucket,
             jobDescription: jobDescription,
-            // Add backwards compat fields found in logs
-            linkedinProfileUrl: jobId, // Seems misused as ID
-            candidateName: 'Uploaded via Fix',
-            resumePath: key // Redundant but safe
+            // Backwards compat
+            linkedinProfileUrl: jobId,
+            candidateName: 'Uploaded via CJS Fix',
+            resumePath: key
         };
 
         await docClient.send(new PutCommand({
@@ -153,7 +143,6 @@ export const handler = async (event) => {
                 success: true,
                 jobId: jobId,
                 message: "Upload successful",
-                // Mimic old response structure partially
                 upload: {
                     bucket: bucket,
                     key: key
