@@ -79,6 +79,7 @@ exports.handler = async (event) => {
             if (!jobId) {
                 return {
                     statusCode: 400,
+                    headers: { "Access-Control-Allow-Origin": "*" },
                     body: JSON.stringify({ success: false, error: 'Missing jobId parameter' })
                 };
             }
@@ -94,18 +95,21 @@ exports.handler = async (event) => {
                 if (!result.Item) {
                     return {
                         statusCode: 404,
+                        headers: { "Access-Control-Allow-Origin": "*" },
                         body: JSON.stringify({ success: false, error: 'Job not found' })
                     };
                 }
 
                 return {
                     statusCode: 200,
+                    headers: { "Access-Control-Allow-Origin": "*" },
                     body: JSON.stringify(result.Item)
                 };
             } catch (dbError) {
                 console.error('DynamoDB Error:', dbError);
                 return {
                     statusCode: 500,
+                    headers: { "Access-Control-Allow-Origin": "*" },
                     body: JSON.stringify({ success: false, error: 'Failed to fetch job status', details: dbError.message })
                 };
             }
