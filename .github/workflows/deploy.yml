@@ -79,17 +79,27 @@ jobs:
         run: |
           set -euo pipefail
           echo "Downloading standard PDF font files..."
-          npm pack pdfkit --pack-destination /tmp
-          cd /tmp && tar -xzf pdfkit-*.tgz
+          
+          # Ensure workspace directories exist
           mkdir -p lambda_extracted/lambdas/data
           mkdir -p lambda_extracted/lib/fonts/data
-          cp package/js/data/*.afm lambda_extracted/lambdas/data/
-          cp package/js/data/*.afm lambda_extracted/lib/fonts/data/
+          
+          # Download and extract in /tmp
+          npm pack pdfkit --pack-destination /tmp
+          (cd /tmp && tar -xzf pdfkit-*.tgz)
+          
+          # Copy fonts from extracted package in /tmp to workspace
+          cp /tmp/package/js/data/*.afm lambda_extracted/lambdas/data/
+          cp /tmp/package/js/data/*.afm lambda_extracted/lib/fonts/data/
           echo "Font files copied successfully"
 
       - name: Package Lambda with Fonts
         run: |
           set -euo pipefail
+          
+          # Ensure staging directory exists
+          mkdir -p lambda_extracted
+          
           # Copy the resume-upload code into the staging directory
           cp lambdas/resume-upload/index.js lambda_extracted/index.js
           
