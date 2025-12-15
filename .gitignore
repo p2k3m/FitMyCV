@@ -1,13 +1,17 @@
 node_modules
-frontend/node_modules
-frontend/dist
 .DS_Store
-*.zip
+dist
 .env
-# Local .terraform directories
-**/.terraform/*
-.terraform*
-
-# .tfstate files
-*.tfstate
-*.tfstate.*
+coverage
+lambda_deployment.zip
+lambda_upload.zip
+lambda_upload_v2.zip
+lambda_upload_cjs.zip
+lambda_extracted/
+temp_cjs_pkg/
+broken_lambda_449.zip
+lambda_restore.zip
+lambda_url_449.txt
+response_restore.json
+*.zip
+*.log
