@@ -1,6 +1,6 @@
 const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
 const { DynamoDBClient } = require("@aws-sdk/client-dynamodb");
-const { DynamoDBDocumentClient, PutCommand } = require("@aws-sdk/lib-dynamodb");
+const { DynamoDBDocumentClient, PutCommand, GetCommand } = require("@aws-sdk/lib-dynamodb");
 const { randomUUID } = require("crypto");
 
 const s3 = new S3Client({});
@@ -83,6 +83,63 @@ exports.handler = async (event) => {
     }
 
     try {
+        // Route: GET /api/job-status
+        if (event.httpMethod === 'GET' && (event.resource === '/api/job-status' || event.path === '/api/job-status')) {
+            const jobId = event.queryStringParameters && event.queryStringParameters.jobId;
+
+            if (!jobId) {
+                return {
+                    statusCode: 400,
+                    headers: {
+                        "Access-Control-Allow-Origin": origin,
+                        "Access-Control-Allow-Credentials": "true"
+                    },
+                    body: JSON.stringify({ success: false, error: 'Missing jobId parameter' })
+                };
+            }
+
+            const tableName = process.env.RESUME_TABLE_NAME || 'ResumeForgeLogs';
+            const { GetCommand } = require("@aws-sdk/lib-dynamodb"); // Lazy load or assume declared at top
+
+            try {
+                const result = await docClient.send(new GetCommand({
+                    TableName: tableName,
+                    Key: { jobId: jobId }
+                }));
+
+                if (!result.Item) {
+                    return {
+                        statusCode: 404,
+                        headers: {
+                            "Access-Control-Allow-Origin": origin,
+                            "Access-Control-Allow-Credentials": "true"
+                        },
+                        body: JSON.stringify({ success: false, error: 'Job not found' })
+                    };
+                }
+
+                return {
+                    statusCode: 200,
+                    headers: {
+                        "Access-Control-Allow-Origin": origin,
+                        "Access-Control-Allow-Credentials": "true"
+                    },
+                    body: JSON.stringify(result.Item)
+                };
+            } catch (dbError) {
+                console.error('DynamoDB Error:', dbError);
+                return {
+                    statusCode: 500,
+                    headers: {
+                        "Access-Control-Allow-Origin": origin,
+                        "Access-Control-Allow-Credentials": "true"
+                    },
+                    body: JSON.stringify({ success: false, error: 'Failed to fetch job status', details: dbError.message })
+                };
+            }
+        }
+
+        // Route: POST /api/process-cv
         const bodyContent = event.isBase64Encoded ? Buffer.from(event.body, 'base64') : event.body;
         const parts = parseMultipart(bodyContent, event.headers);
 
@@ -123,7 +180,7 @@ exports.handler = async (event) => {
             jobDescription: jobDescription,
             // Backwards compat
             linkedinProfileUrl: jobId,
-            candidateName: 'Uploaded via CJS Fix',
+            candidateName: 'Uploaded via CJS Fix v2',
             resumePath: key
         };
 
@@ -152,7 +209,7 @@ exports.handler = async (event) => {
         };
 
     } catch (error) {
-        console.error('Upload Error:', error);
+        console.error('Handler Error:', error);
         return {
             statusCode: 500,
             headers: {
