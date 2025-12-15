@@ -101,15 +101,15 @@ jobs:
           set -euo pipefail
           
           # Verify source file exists
-          if [ ! -f lambdas/resume-upload/index.js ]; then
-            echo "ERROR: Source file lambdas/resume-upload/index.js not found!"
+          if [ ! -f lambdas/resume-upload/handler.js ]; then
+            echo "ERROR: Source file lambdas/resume-upload/handler.js not found!"
             ls -R lambdas
             exit 1
           fi
           
           # Copy the resume-upload code into the staging directory
-          echo "Copying index.js..."
-          cp -v lambdas/resume-upload/index.js lambda_dist/index.js
+          echo "Copying handler.js..."
+          cp -v lambdas/resume-upload/handler.js lambda_dist/handler.js
           
           echo "Contents of lambda_dist before zip:"
           ls -R lambda_dist
@@ -241,7 +241,7 @@ jobs:
           aws lambda update-function-configuration \
             --region ap-south-1 \
             --function-name ResumeForge-prod-resume-upload \
-            --handler index.handler \
+            --handler handler.handler \
             --environment "Variables={
               S3_BUCKET=resume-forge-data-ats,
               STAGE_NAME=prod,
