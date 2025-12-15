@@ -1,0 +1,1 @@
+{"errorType":"TypeError","errorMessage":"Cannot read properties of undefined (reading 'origin')","trace":["TypeError: Cannot read properties of undefined (reading 'origin')","    at exports.handler (/var/task/index.js:68:34)","    at Runtime.handleOnceNonStreaming (file:///var/runtime/index.mjs:1306:29)"]}
