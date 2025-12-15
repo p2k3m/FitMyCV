@@ -96,35 +96,29 @@ jobs:
           cp /tmp/package/js/data/*.afm lambda_dist/lib/fonts/data/
           echo "Font files copied successfully"
 
-      - name: Package Lambda with Fonts
+      - name: Package Lambda
         run: |
           set -euo pipefail
           
-          # Verify source file exists
+          echo "Packaging Resume Upload Lambda..."
+          
+          # Verify source file
           if [ ! -f lambdas/resume-upload/handler.js ]; then
-            echo "ERROR: Source file lambdas/resume-upload/handler.js not found!"
-            ls -R lambdas
-            exit 1
+             echo "ERROR: Source file lambdas/resume-upload/handler.js not found!"
+             exit 1
           fi
           
-          # Copy the resume-upload code into the staging directory
-          echo "Copying handler.js..."
-          cp -v lambdas/resume-upload/handler.js lambda_dist/handler.js
+          # Ensure permissions on source
+          chmod 644 lambdas/resume-upload/handler.js
           
-          # Fix permissions explicitly
-          chmod 755 lambda_dist
-          chmod 644 lambda_dist/handler.js
+          # Zip directly using -j (junk paths) to ensure handler.js is at root
+          # This avoids any issues with directory structure in the zip
+          zip -j lambda_deployment.zip lambdas/resume-upload/handler.js
           
-          echo "Contents of lambda_dist before zip:"
-          ls -laR lambda_dist
-          
-          # Create zip strictly from the clean directory
-          cd lambda_dist
-          zip -r ../lambda_deployment.zip .
-          cd ..
+          echo "Zip created:"
           ls -lh lambda_deployment.zip
           
-          # Verify zip content matches expectation
+          echo "Zip contents:"
           unzip -l lambda_deployment.zip
 
       - name: Update Lambda Functions
