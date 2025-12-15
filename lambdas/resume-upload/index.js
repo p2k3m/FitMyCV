@@ -191,7 +191,7 @@ exports.handler = async (event) => {
 
         console.log('Successfully uploaded and persisted:', jobId);
 
-        return {
+        const response = {
             statusCode: 200,
             headers: {
                 "Access-Control-Allow-Origin": origin,
@@ -207,6 +207,9 @@ exports.handler = async (event) => {
                 }
             })
         };
+
+        console.log('Returning Response:', JSON.stringify(response));
+        return response;
 
     } catch (error) {
         console.error('Handler Error:', error);
