@@ -1,11 +1,9 @@
 const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
 const { DynamoDBClient } = require("@aws-sdk/client-dynamodb");
-const { DynamoDBDocumentClient, PutCommand, GetCommand } = require("@aws-sdk/lib-dynamodb");
 const { randomUUID } = require("crypto");
 
 const s3 = new S3Client({});
 const ddb = new DynamoDBClient({});
-const docClient = DynamoDBDocumentClient.from(ddb);
 
 // Simple multipart parser
 function parseMultipart(body, headers) {
@@ -83,6 +81,11 @@ exports.handler = async (event) => {
     }
 
     try {
+        // Lazy load lib-dynamodb to prevent top-level ImportModuleError
+        // if the dependency is missing or corrupted in a specific runtime.
+        const { DynamoDBDocumentClient, PutCommand, GetCommand } = require("@aws-sdk/lib-dynamodb");
+        const docClient = DynamoDBDocumentClient.from(ddb);
+
         // Route: GET /api/job-status
         if (event.httpMethod === 'GET' && (event.resource === '/api/job-status' || event.path === '/api/job-status')) {
             const jobId = event.queryStringParameters && event.queryStringParameters.jobId;
@@ -177,8 +180,9 @@ exports.handler = async (event) => {
             s3Key: key,
             bucket: bucket,
             jobDescription: jobDescription,
+            // Backwards compat
             linkedinProfileUrl: jobId,
-            candidateName: 'Uploaded via Manual Fix',
+            candidateName: 'Uploaded via Lazy Load Fix',
             resumePath: key
         };
 
@@ -217,7 +221,7 @@ exports.handler = async (event) => {
                 "Access-Control-Allow-Origin": origin,
                 "Access-Control-Allow-Credentials": "true"
             },
-            body: JSON.stringify({ success: false, error: error.message })
+            body: JSON.stringify({ success: false, error: error.message, stack: error.stack })
         };
     }
 };
