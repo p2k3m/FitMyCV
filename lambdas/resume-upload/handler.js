@@ -121,6 +121,7 @@ exports.handler = async (event) => {
         if (!resumePart) {
             return {
                 statusCode: 400,
+                headers: { "Access-Control-Allow-Origin": "*" },
                 body: JSON.stringify({ success: false, error: 'Missing resume file' })
             };
         }
@@ -161,6 +162,11 @@ exports.handler = async (event) => {
 
         const response = {
             statusCode: 200,
+            headers: {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "OPTIONS,POST",
+                "Access-Control-Allow-Headers": "Content-Type,Authorization"
+            },
             body: JSON.stringify({
                 success: true,
                 jobId: jobId,
