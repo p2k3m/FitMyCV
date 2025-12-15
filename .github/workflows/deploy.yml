@@ -80,6 +80,9 @@ jobs:
           set -euo pipefail
           echo "Downloading standard PDF font files..."
           
+          # Explicit cleanup to ensure no stale artifacts
+          rm -rf lambda_extracted
+          
           # Ensure workspace directories exist
           mkdir -p lambda_extracted/lambdas/data
           mkdir -p lambda_extracted/lib/fonts/data
@@ -97,16 +100,27 @@ jobs:
         run: |
           set -euo pipefail
           
-          # Ensure staging directory exists
-          mkdir -p lambda_extracted
+          # Verify source file exists
+          if [ ! -f lambdas/resume-upload/index.js ]; then
+            echo "ERROR: Source file lambdas/resume-upload/index.js not found!"
+            ls -R lambdas
+            exit 1
+          fi
           
           # Copy the resume-upload code into the staging directory
-          cp lambdas/resume-upload/index.js lambda_extracted/index.js
+          echo "Copying index.js..."
+          cp -v lambdas/resume-upload/index.js lambda_extracted/index.js
+          
+          echo "Contents of lambda_extracted before zip:"
+          ls -R lambda_extracted
           
           cd lambda_extracted
           zip -r ../lambda_deployment.zip .
           cd ..
           ls -lh lambda_deployment.zip
+          
+          # Verify zip content matches expectation
+          unzip -l lambda_deployment.zip
 
       - name: Update Lambda Functions
         env:
