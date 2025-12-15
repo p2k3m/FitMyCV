@@ -111,8 +111,12 @@ jobs:
           echo "Copying handler.js..."
           cp -v lambdas/resume-upload/handler.js lambda_dist/handler.js
           
+          # Fix permissions explicitly
+          chmod 755 lambda_dist
+          chmod 644 lambda_dist/handler.js
+          
           echo "Contents of lambda_dist before zip:"
-          ls -R lambda_dist
+          ls -laR lambda_dist
           
           # Create zip strictly from the clean directory
           cd lambda_dist
