@@ -1,11 +1,5 @@
-const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
-const { DynamoDBClient } = require("@aws-sdk/client-dynamodb");
-const { randomUUID } = require("crypto");
 
-const s3 = new S3Client({});
-const ddb = new DynamoDBClient({});
-
-// Simple multipart parser
+// Pure function, no dependencies required
 function parseMultipart(body, headers) {
     const contentType = headers['content-type'] || headers['Content-Type'];
     if (!contentType) throw new Error('Missing Content-Type');
@@ -81,9 +75,16 @@ exports.handler = async (event) => {
     }
 
     try {
-        // Lazy load lib-dynamodb to prevent top-level ImportModuleError
-        // if the dependency is missing or corrupted in a specific runtime.
+        // ULTRA LAZY LOAD: Require EVERYTHING inside the handler.
+        // This ensures that any dependency issues throw a recoverable error (which gets logged)
+        // instead of crashing the process at startup (ImportModuleError).
+        const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
+        const { DynamoDBClient } = require("@aws-sdk/client-dynamodb");
         const { DynamoDBDocumentClient, PutCommand, GetCommand } = require("@aws-sdk/lib-dynamodb");
+        const { randomUUID } = require("crypto");
+
+        const s3 = new S3Client({});
+        const ddb = new DynamoDBClient({});
         const docClient = DynamoDBDocumentClient.from(ddb);
 
         // Route: GET /api/job-status
@@ -182,7 +183,7 @@ exports.handler = async (event) => {
             jobDescription: jobDescription,
             // Backwards compat
             linkedinProfileUrl: jobId,
-            candidateName: 'Uploaded via Lazy Load Fix',
+            candidateName: 'Uploaded via Ultra Lazy Load Fix',
             resumePath: key
         };
 
