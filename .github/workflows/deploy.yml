@@ -80,20 +80,20 @@ jobs:
           set -euo pipefail
           echo "Downloading standard PDF font files..."
           
-          # Explicit cleanup to ensure no stale artifacts
-          rm -rf lambda_extracted
+          # Explicit cleanup
+          rm -rf lambda_staging
           
           # Ensure workspace directories exist
-          mkdir -p lambda_extracted/lambdas/data
-          mkdir -p lambda_extracted/lib/fonts/data
+          mkdir -p lambda_staging/lambdas/data
+          mkdir -p lambda_staging/lib/fonts/data
           
           # Download and extract in /tmp
           npm pack pdfkit --pack-destination /tmp
           (cd /tmp && tar -xzf pdfkit-*.tgz)
           
           # Copy fonts from extracted package in /tmp to workspace
-          cp /tmp/package/js/data/*.afm lambda_extracted/lambdas/data/
-          cp /tmp/package/js/data/*.afm lambda_extracted/lib/fonts/data/
+          cp /tmp/package/js/data/*.afm lambda_staging/lambdas/data/
+          cp /tmp/package/js/data/*.afm lambda_staging/lib/fonts/data/
           echo "Font files copied successfully"
 
       - name: Package Lambda with Fonts
@@ -109,12 +109,12 @@ jobs:
           
           # Copy the resume-upload code into the staging directory
           echo "Copying index.js..."
-          cp -v lambdas/resume-upload/index.js lambda_extracted/index.js
+          cp -v lambdas/resume-upload/index.js lambda_staging/index.js
           
-          echo "Contents of lambda_extracted before zip:"
-          ls -R lambda_extracted
+          echo "Contents of lambda_staging before zip:"
+          ls -R lambda_staging
           
-          cd lambda_extracted
+          cd lambda_staging
           zip -r ../lambda_deployment.zip .
           cd ..
           ls -lh lambda_deployment.zip
