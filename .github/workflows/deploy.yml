@@ -80,8 +80,8 @@ jobs:
           set -euo pipefail
           echo "Downloading standard PDF font files..."
           
-          # Nuclear cleanup of workspace
-          git clean -fdx
+          # Clean staging directory manually to avoid git clean issues
+          rm -rf lambda_dist
           
           # Create fresh staging dir
           mkdir -p lambda_dist/lambdas/data
@@ -241,6 +241,7 @@ jobs:
           aws lambda update-function-configuration \
             --region ap-south-1 \
             --function-name ResumeForge-prod-resume-upload \
+            --handler index.handler \
             --environment "Variables={
               S3_BUCKET=resume-forge-data-ats,
               STAGE_NAME=prod,
