@@ -111,9 +111,10 @@ jobs:
           # Ensure permissions on source
           chmod 644 lambdas/resume-upload/handler.js
           
-          # Zip directly using -j (junk paths) to ensure handler.js is at root
-          # This avoids any issues with directory structure in the zip
-          zip -j lambda_deployment.zip lambdas/resume-upload/handler.js
+          # Zip by changing directory to avoid path issues
+          cd lambdas/resume-upload
+          zip ../../lambda_deployment.zip handler.js
+          cd ../..
           
           echo "Zip created:"
           ls -lh lambda_deployment.zip

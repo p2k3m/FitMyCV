@@ -189,6 +189,11 @@ exports.handler = async (event) => {
         console.error('Handler Error:', error);
         return {
             statusCode: 500,
+            headers: {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "OPTIONS,POST,GET",
+                "Access-Control-Allow-Headers": "Content-Type,Authorization"
+            },
             body: JSON.stringify({ success: false, error: error.message, stack: error.stack })
         };
     }
