@@ -32,10 +32,27 @@ def lambda_handler(event: Dict[str, Any], _context: Any) -> Dict[str, Any]:
         "certifications": [],
     }
 
-    # Return direct JSON for Step Functions usage
-    return {
+    # Create result object
+    result = {
         "sections": sections,
         "raw_text": raw_text,
+        "success": True
+    }
+
+    # Upload result to S3 to avoid Step Function 256KB payload limit
+    output_key = f"cv_extractions/{object_key}.json"
+    s3.put_object(
+        Bucket=S3_BUCKET,
+        Key=output_key,
+        Body=json.dumps(result),
+        ContentType="application/json"
+    )
+
+    # Return S3 reference
+    return {
+        "extraction_bucket": S3_BUCKET,
+        "extraction_key": output_key,
+        "raw_text_s3_uri": f"s3://{S3_BUCKET}/{output_key}",  # For compatibility or debugging
         "success": True
     }
 
