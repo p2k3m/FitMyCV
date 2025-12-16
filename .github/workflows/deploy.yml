@@ -281,6 +281,21 @@ jobs:
           aws lambda wait function-updated \
             --region ap-south-1 \
             --function-name ResumeForge-prod-resume-upload
+
+          echo "Updating environment variables for cv-extractor Lambda..."
+          aws lambda update-function-configuration \
+            --region ap-south-1 \
+            --function-name ResumeForge-prod-cv-extractor \
+            --environment "Variables={
+              UPLOAD_BUCKET=resume-forge-data-ats
+            }" \
+            --output json \
+            --query '{FunctionName:FunctionName,LastUpdateStatus:LastUpdateStatus}'
+
+          aws lambda wait function-updated \
+            --region ap-south-1 \
+            --function-name ResumeForge-prod-cv-extractor
+
           echo "Environment variables updated successfully"
 
       - name: Update IAM Policies
