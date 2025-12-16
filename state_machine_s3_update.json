@@ -1,0 +1,89 @@
+{
+    "Comment": "ResumeForge orchestration pipeline (Updated with CV Extractor and S3 offloading)",
+    "StartAt": "ExtractResumeText",
+    "States": {
+        "ExtractResumeText": {
+            "Type": "Task",
+            "Resource": "arn:aws:lambda:ap-south-1:957650740525:function:ResumeForge-prod-cv-extractor",
+            "Parameters": {
+                "object_key.$": "$.resumePath"
+            },
+            "ResultPath": "$.extraction",
+            "Next": "ScoreResume"
+        },
+        "ScoreResume": {
+            "Next": "FanOutEnhancements",
+            "Parameters": {
+                "jobDescription.$": "$.jobDescription",
+                "jobId.$": "$.jobId",
+                "jobSkills.$": "$.jobSkills",
+                "resumeS3Key.$": "$.extraction.extraction_key",
+                "resumeS3Bucket.$": "$.extraction.extraction_bucket"
+            },
+            "Resource": "arn:aws:lambda:ap-south-1:957650740525:function:ResumeForge-prod-workflow-score",
+            "ResultPath": "$.scoring",
+            "Type": "Task"
+        },
+        "FanOutEnhancements": {
+            "ItemsPath": "$.enhancementTypes",
+            "Iterator": {
+                "StartAt": "InvokeEnhancementSection",
+                "States": {
+                    "InvokeEnhancementSection": {
+                        "End": true,
+                        "Resource": "arn:aws:lambda:ap-south-1:957650740525:function:ResumeForge-prod-workflow-enhancement-section",
+                        "Parameters": {
+                            "jobDescription.$": "$.jobDescription",
+                            "jobSkills.$": "$.jobSkills",
+                            "manualCertificates.$": "$.manualCertificates",
+                            "missingSkills.$": "$.scoring.missingSkills",
+                            "resumeS3Key.$": "$.extraction.extraction_key",
+                            "resumeS3Bucket.$": "$.extraction.extraction_bucket",
+                            "targetTitle.$": "$.targetTitle",
+                            "type.$": "$$.Map.Item.Value"
+                        },
+                        "Type": "Task"
+                    }
+                }
+            },
+            "MaxConcurrency": 7,
+            "Next": "CombineEnhancements",
+            "Parameters": {
+                "jobDescription.$": "$.jobDescription",
+                "jobSkills.$": "$.jobSkills",
+                "manualCertificates.$": "$.manualCertificates",
+                "missingSkills.$": "$.scoring.missingSkills",
+                "resumeS3Key.$": "$.extraction.extraction_key",
+                "resumeS3Bucket.$": "$.extraction.extraction_bucket",
+                "targetTitle.$": "$.targetTitle",
+                "type.$": "$$.Map.Item.Value",
+                "extraction.$": "$.extraction"
+            },
+            "ResultPath": "$.enhancementResults",
+            "Type": "Map"
+        },
+        "CombineEnhancements": {
+            "Next": "GenerateArtifacts",
+            "Parameters": {
+                "jobId.$": "$.jobId",
+                "resumeS3Key.$": "$.extraction.extraction_key",
+                "resumeS3Bucket.$": "$.extraction.extraction_bucket",
+                "sectionResults.$": "$.enhancementResults"
+            },
+            "Resource": "arn:aws:lambda:ap-south-1:957650740525:function:ResumeForge-prod-workflow-combine",
+            "ResultPath": "$.combined",
+            "Type": "Task"
+        },
+        "GenerateArtifacts": {
+            "End": true,
+            "Parameters": {
+                "jobId.$": "$.jobId",
+                "resumeS3Key.$": "$.extraction.extraction_key",
+                "resumeS3Bucket.$": "$.extraction.extraction_bucket"
+            },
+            "Resource": "arn:aws:lambda:ap-south-1:957650740525:function:ResumeForge-prod-workflow-generate",
+            "ResultPath": "$.artifacts",
+            "Type": "Task"
+        }
+    }
+}
