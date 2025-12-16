@@ -147,6 +147,24 @@ jobs:
           aws lambda wait function-updated \
             --region ap-south-1 \
             --function-name "ResumeForge-prod-resume-upload"
+
+          echo "Updating ResumeForge-prod-cv-extractor..."
+          
+          # Package cv_extractor
+          cd lambdas/cv_extractor
+          zip ../../cv_extractor.zip main.py
+          cd ../..
+          
+          aws lambda update-function-code \
+            --region ap-south-1 \
+            --function-name "ResumeForge-prod-cv-extractor" \
+            --zip-file "fileb://cv_extractor.zip" \
+            --output json \
+            --query '{FunctionName:FunctionName,LastModified:LastModified,CodeSize:CodeSize}'
+            
+          aws lambda wait function-updated \
+            --region ap-south-1 \
+            --function-name "ResumeForge-prod-cv-extractor"
           
           echo "Lambda function updated successfully"
 

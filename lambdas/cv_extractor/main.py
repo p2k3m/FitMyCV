@@ -32,15 +32,11 @@ def lambda_handler(event: Dict[str, Any], _context: Any) -> Dict[str, Any]:
         "certifications": [],
     }
 
-    body = {"sections": sections, "raw_text": raw_text}
+    # Return direct JSON for Step Functions usage
     return {
-        "statusCode": 200,
-        "headers": {
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Headers": "Content-Type",
-            "Access-Control-Allow-Methods": "OPTIONS,POST,GET"
-        },
-        "body": json.dumps(body)
+        "sections": sections,
+        "raw_text": raw_text,
+        "success": True
     }
 
 
