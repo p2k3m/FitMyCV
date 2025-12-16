@@ -66,6 +66,8 @@ async function processRecord(record) {
         resumePath: newItem.resumePath || newItem.key || newItem.s3Key || '',
         jobDescription: newItem.jobDescription || newItem.sessionInputs?.jobDescription || '',
         jobSkills: newItem.jobSkills || [],
+        manualCertificates: newItem.manualCertificates || [],
+        targetTitle: newItem.targetTitle || 'General Application',
         bucket: newItem.bucket || newItem.s3Bucket || process.env.S3_BUCKET || 'resume-forge-data-ats',
         requestId: newItem.requestId || newItem.jobId
     };

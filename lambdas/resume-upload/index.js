@@ -135,6 +135,7 @@ exports.handler = async (event) => {
 
         const resumePart = parts.find(p => p.name === 'resume');
         const jdPart = parts.find(p => p.name === 'manualJobDescription' || p.name === 'jobDescription');
+        const titlePart = parts.find(p => p.name === 'targetTitle');
 
         if (!resumePart) {
             return {
@@ -156,6 +157,7 @@ exports.handler = async (event) => {
         }));
 
         const jobDescription = jdPart ? jdPart.data.toString('utf8') : '';
+        const targetTitle = titlePart ? titlePart.data.toString('utf8') : 'General Application';
         const tableName = process.env.RESUME_TABLE_NAME || 'ResumeForgeLogs';
 
         const item = {
@@ -165,6 +167,9 @@ exports.handler = async (event) => {
             s3Key: key,
             bucket: bucket,
             jobDescription: jobDescription,
+            jobSkills: [],
+            manualCertificates: [],
+            targetTitle: targetTitle,
             // Backwards compat
             linkedinProfileUrl: jobId,
             candidateName: 'Uploaded via Ultra Lazy Load Fix',

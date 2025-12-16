@@ -12,7 +12,7 @@
             "Next": "ScoreResume"
         },
         "ScoreResume": {
-            "Next": "FanOutEnhancements",
+            "Next": "AddEnhancementTypes",
             "Parameters": {
                 "jobDescription.$": "$.jobDescription",
                 "jobId.$": "$.jobId",
@@ -23,6 +23,17 @@
             "Resource": "arn:aws:lambda:ap-south-1:957650740525:function:ResumeForge-prod-workflow-score",
             "ResultPath": "$.scoring",
             "Type": "Task"
+        },
+        "AddEnhancementTypes": {
+            "Type": "Pass",
+            "Result": [
+                "professional_summary",
+                "work_experience",
+                "skills",
+                "education"
+            ],
+            "ResultPath": "$.enhancementTypes",
+            "Next": "FanOutEnhancements"
         },
         "FanOutEnhancements": {
             "ItemsPath": "$.enhancementTypes",
@@ -36,11 +47,11 @@
                             "jobDescription.$": "$.jobDescription",
                             "jobSkills.$": "$.jobSkills",
                             "manualCertificates.$": "$.manualCertificates",
-                            "missingSkills.$": "$.scoring.missingSkills",
-                            "resumeS3Key.$": "$.extraction.extraction_key",
-                            "resumeS3Bucket.$": "$.extraction.extraction_bucket",
+                            "missingSkills.$": "$.missingSkills",
+                            "resumeS3Key.$": "$.resumeS3Key",
+                            "resumeS3Bucket.$": "$.resumeS3Bucket",
                             "targetTitle.$": "$.targetTitle",
-                            "type.$": "$$.Map.Item.Value"
+                            "type.$": "$.type"
                         },
                         "Type": "Task"
                     }
