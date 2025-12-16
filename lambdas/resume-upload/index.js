@@ -1,3 +1,4 @@
+console.log("Loading Resume Upload Lambda Module");
 
 // Pure function, no dependencies required
 function parseMultipart(body, headers) {
@@ -71,6 +72,19 @@ exports.handler = async (event) => {
         const s3 = new S3Client({});
         const ddb = new DynamoDBClient({});
         const docClient = DynamoDBDocumentClient.from(ddb);
+
+        // Handle OPTIONS preflight request
+        if (event.httpMethod === 'OPTIONS') {
+            return {
+                statusCode: 200,
+                headers: {
+                    "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Allow-Methods": "OPTIONS,POST,GET",
+                    "Access-Control-Allow-Headers": "Content-Type,Authorization"
+                },
+                body: ""
+            };
+        }
 
         // Route: GET /api/job-status
         if (event.httpMethod === 'GET' && (event.resource === '/api/job-status' || event.path === '/api/job-status')) {

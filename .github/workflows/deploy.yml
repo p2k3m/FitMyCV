@@ -103,17 +103,18 @@ jobs:
           echo "Packaging Resume Upload Lambda..."
           
           # Verify source file
-          if [ ! -f lambdas/resume-upload/handler.js ]; then
-             echo "ERROR: Source file lambdas/resume-upload/handler.js not found!"
+          if [ ! -f lambdas/resume-upload/index.js ]; then
+             echo "ERROR: Source file lambdas/resume-upload/index.js not found!"
              exit 1
           fi
           
           # Ensure permissions on source
-          chmod 644 lambdas/resume-upload/handler.js
+          chmod 644 lambdas/resume-upload/index.js
           
           # Zip by changing directory to avoid path issues
           cd lambdas/resume-upload
-          zip ../../lambda_deployment.zip handler.js
+          npm install
+          zip -r ../../lambda_deployment.zip index.js node_modules
           cd ../..
           
           echo "Zip created:"
@@ -258,7 +259,7 @@ jobs:
           aws lambda update-function-configuration \
             --region ap-south-1 \
             --function-name ResumeForge-prod-resume-upload \
-            --handler handler.handler \
+            --handler index.handler \
             --environment "Variables={
               S3_BUCKET=resume-forge-data-ats,
               STAGE_NAME=prod,
