@@ -168,6 +168,12 @@ jobs:
             --region ap-south-1 \
             --function-name "ResumeForge-prod-resume-upload"
 
+          echo "Updating 'prod' alias to \$LATEST..."
+          aws lambda update-alias \
+            --function-name "ResumeForge-prod-resume-upload" \
+            --name "prod" \
+            --function-version "\$LATEST"
+
           echo "Updating ResumeForge-prod-cv-extractor..."
           
           # Package cv_extractor

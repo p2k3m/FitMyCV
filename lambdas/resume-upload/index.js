@@ -181,7 +181,11 @@ exports.handler = async (event) => {
 
         const response = {
             statusCode: 200,
-
+            headers: {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "OPTIONS,POST",
+                "Access-Control-Allow-Headers": "Content-Type,Authorization"
+            },
             body: JSON.stringify({
                 success: true,
                 jobId: jobId,
