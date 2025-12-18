@@ -164,6 +164,26 @@ resource "aws_cloudfront_distribution" "cdn" {
   }
 }
 
+resource "aws_dynamodb_table" "resume_forge_logs" {
+  name           = "ResumeForgeLogs"
+  billing_mode   = "PAY_PER_REQUEST"
+  hash_key       = "jobId"
+
+  attribute {
+    name = "jobId"
+    type = "S"
+  }
+
+  stream_enabled   = true
+  stream_view_type = "NEW_AND_OLD_IMAGES"
+
+  tags = {
+    Project     = "FitMyCV"
+    Environment = var.environment
+    ManagedBy   = "terraform"
+  }
+}
+
 output "cloudfront_domain" {
   value = aws_cloudfront_distribution.cdn.domain_name
 }
