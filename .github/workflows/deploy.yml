@@ -39,6 +39,25 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION || 'ap-south-1' }}
 
+      - name: Terraform Init
+        continue-on-error: true
+        working-directory: infra/terraform
+        env:
+          TF_VAR_frontend_bucket: resume-forge-app-2025
+          TF_VAR_assets_bucket: resume-forge-data-ats
+          TF_VAR_aws_region: ap-south-1
+        run: terraform init
+
+      - name: Terraform Apply
+        continue-on-error: true
+        working-directory: infra/terraform
+        env:
+          TF_VAR_project: ResumeForge
+          TF_VAR_aws_region: ap-south-1
+          TF_VAR_frontend_bucket: resume-forge-app-2025
+          TF_VAR_assets_bucket: resume-forge-data-ats
+        run: terraform apply -auto-approve
+
       - name: Ensure deployment buckets exist
         env:
           FRONTEND_BUCKET: ${{ secrets.FRONTEND_BUCKET || 'resume-forge-app-2025' }}
@@ -389,24 +408,7 @@ jobs:
           
           echo "CloudFront configuration file updated"
 
-      - name: Terraform Init
-        continue-on-error: true
-        working-directory: infra/terraform
-        env:
-          TF_VAR_frontend_bucket: resume-forge-app-2025
-          TF_VAR_assets_bucket: resume-forge-data-ats
-          TF_VAR_aws_region: ap-south-1
-        run: terraform init
 
-      - name: Terraform Apply
-        continue-on-error: true
-        working-directory: infra/terraform
-        env:
-          TF_VAR_project: ResumeForge
-          TF_VAR_aws_region: ap-south-1
-          TF_VAR_frontend_bucket: resume-forge-app-2025
-          TF_VAR_assets_bucket: resume-forge-data-ats
-        run: terraform apply -auto-approve
 
       - name: Invalidate CloudFront cache
         continue-on-error: true
