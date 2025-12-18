@@ -262,12 +262,24 @@ jobs:
              fi
           fi
             
-          # Wait for update
+          # Wait for update (wait for LAST UPDATE to be successful)
           aws lambda wait function-updated \
             --region ap-south-1 \
             --function-name "ResumeForge-DynamoDBStreamProcessor"
           
-          echo "StreamProcessor deployed successfully"
+          # Wait for function to exist (in case it was just created)
+          echo "Waiting for function to exist..."
+          aws lambda wait function-exists \
+            --region ap-south-1 \
+            --function-name "ResumeForge-DynamoDBStreamProcessor"
+
+          # Wait for function to be active (ready for invocation/management)
+          echo "Waiting for function to be active..."
+          aws lambda wait function-active \
+            --region ap-south-1 \
+            --function-name "ResumeForge-DynamoDBStreamProcessor"
+          
+          echo "StreamProcessor deployed and active."
 
       - name: Configure Stream Processor Trigger & Permissions
         env:
