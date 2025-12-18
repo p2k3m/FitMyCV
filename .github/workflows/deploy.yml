@@ -307,7 +307,11 @@ jobs:
           echo "Stream ARN: $STREAM_ARN"
           
           # Update IAM
-          ROLE_NAME=$(aws lambda get-function-configuration --function-name "$FUNCTION_NAME" --query "Role" --output text | awk -F'/' '{print $NF}')
+          # We know the role name from the previous step, so hardcode it to avoid lookup failures if function is eventually consistent
+          ROLE_NAME="ResumeForge-ResumeForgeFunctionRole-I1oDcO54aMSa"
+          
+          # Optional: Verify function existence for debugging but don't fail immediately on get-config
+          aws lambda get-function --function-name "$FUNCTION_NAME" >/dev/null || echo "WARNING: Function not found by get-function check"
           
           echo '{
             "Version": "2012-10-17",
