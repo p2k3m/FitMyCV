@@ -236,6 +236,64 @@ jobs:
           
           echo "StreamProcessor deployed successfully"
 
+      - name: Configure Stream Processor Trigger & Permissions
+        env:
+          AWS_DEFAULT_REGION: ap-south-1
+        run: |
+          set -euo pipefail
+          echo "Configuring Stream Processor..."
+          
+          FUNCTION_NAME="ResumeForge-DynamoDBStreamProcessor"
+          TABLE_NAME="ResumeForgeLogs"
+          
+          # Enable Stream
+          STREAM_ENABLED=$(aws dynamodb describe-table --table-name "$TABLE_NAME" --query "Table.StreamSpecification.StreamEnabled" --output text 2>/dev/null || echo "False")
+          if [ "$STREAM_ENABLED" != "True" ]; then
+             echo "Enabling stream on $TABLE_NAME..."
+             aws dynamodb update-table \
+               --table-name "$TABLE_NAME" \
+               --stream-specification StreamEnabled=true,StreamViewType=NEW_AND_OLD_IMAGES
+             aws dynamodb wait table-exists --table-name "$TABLE_NAME"
+          fi
+          
+          STREAM_ARN=$(aws dynamodb describe-table --table-name "$TABLE_NAME" --query "Table.LatestStreamArn" --output text)
+          echo "Stream ARN: $STREAM_ARN"
+          
+          # Update IAM
+          ROLE_NAME=$(aws lambda get-function-configuration --function-name "$FUNCTION_NAME" --query "Role" --output text | awk -F'/' '{print $NF}')
+          
+          echo '{
+            "Version": "2012-10-17",
+            "Statement": [
+              {
+                "Effect": "Allow",
+                "Action": [
+                  "dynamodb:GetRecords",
+                  "dynamodb:GetShardIterator",
+                  "dynamodb:DescribeStream",
+                  "dynamodb:ListStreams",
+                  "states:StartExecution"
+                ],
+                "Resource": ["*"]
+              }
+            ]
+          }' > /tmp/sp-policy.json
+          
+          aws iam put-role-policy --role-name "$ROLE_NAME" --policy-name StreamProcessorAccess --policy-document file:///tmp/sp-policy.json
+          
+          # Create/Update Mapping
+          MAPPING_ID=$(aws lambda list-event-source-mappings --function-name "$FUNCTION_NAME" --event-source-arn "$STREAM_ARN" --query "EventSourceMappings[0].UUID" --output text)
+          
+          if [ "$MAPPING_ID" == "None" ]; then
+            aws lambda create-event-source-mapping --function-name "$FUNCTION_NAME" --event-source-arn "$STREAM_ARN" --starting-position LATEST --batch-size 1
+          else
+            aws lambda update-event-source-mapping --uuid "$MAPPING_ID" --enabled
+          fi
+          
+          # Env Vars
+          aws lambda update-function-configuration --function-name "$FUNCTION_NAME" \
+            --environment "Variables={STATE_MACHINE_ARN=arn:aws:states:ap-south-1:957650740525:stateMachine:ResumeForge-resume-flow}"
+
       - name: Update Workflow Lambda IAM Permissions
         env:
           AWS_DEFAULT_REGION: ap-south-1
