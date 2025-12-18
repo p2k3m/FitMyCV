@@ -77,11 +77,7 @@ exports.handler = async (event) => {
         if (event.httpMethod === 'OPTIONS') {
             return {
                 statusCode: 200,
-                headers: {
-                    "Access-Control-Allow-Origin": "*",
-                    "Access-Control-Allow-Methods": "OPTIONS,POST,GET",
-                    "Access-Control-Allow-Headers": "Content-Type,Authorization"
-                },
+
                 body: ""
             };
         }
@@ -93,7 +89,7 @@ exports.handler = async (event) => {
             if (!jobId) {
                 return {
                     statusCode: 400,
-                    headers: { "Access-Control-Allow-Origin": "*" },
+
                     body: JSON.stringify({ success: false, error: 'Missing jobId parameter' })
                 };
             }
@@ -109,21 +105,21 @@ exports.handler = async (event) => {
                 if (!result.Item) {
                     return {
                         statusCode: 404,
-                        headers: { "Access-Control-Allow-Origin": "*" },
+
                         body: JSON.stringify({ success: false, error: 'Job not found' })
                     };
                 }
 
                 return {
                     statusCode: 200,
-                    headers: { "Access-Control-Allow-Origin": "*" },
+
                     body: JSON.stringify(result.Item)
                 };
             } catch (dbError) {
                 console.error('DynamoDB Error:', dbError);
                 return {
                     statusCode: 500,
-                    headers: { "Access-Control-Allow-Origin": "*" },
+
                     body: JSON.stringify({ success: false, error: 'Failed to fetch job status', details: dbError.message })
                 };
             }
@@ -140,7 +136,7 @@ exports.handler = async (event) => {
         if (!resumePart) {
             return {
                 statusCode: 400,
-                headers: { "Access-Control-Allow-Origin": "*" },
+
                 body: JSON.stringify({ success: false, error: 'Missing resume file' })
             };
         }
@@ -185,11 +181,7 @@ exports.handler = async (event) => {
 
         const response = {
             statusCode: 200,
-            headers: {
-                "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Methods": "OPTIONS,POST",
-                "Access-Control-Allow-Headers": "Content-Type,Authorization"
-            },
+
             body: JSON.stringify({
                 success: true,
                 jobId: jobId,
@@ -208,11 +200,7 @@ exports.handler = async (event) => {
         console.error('Handler Error:', error);
         return {
             statusCode: 500,
-            headers: {
-                "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Methods": "OPTIONS,POST,GET",
-                "Access-Control-Allow-Headers": "Content-Type,Authorization"
-            },
+
             body: JSON.stringify({ success: false, error: error.message, stack: error.stack })
         };
     }
