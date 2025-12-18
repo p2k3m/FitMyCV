@@ -62,6 +62,13 @@ exports.handler = async (event) => {
         requestContext: event.requestContext
     }));
 
+    // Define CORS headers globally for the handler scope
+    const CORS_HEADERS = {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "OPTIONS,POST,GET",
+        "Access-Control-Allow-Headers": "Content-Type,Authorization"
+    };
+
     try {
         // ULTRA LAZY LOAD: Require EVERYTHING inside the handler.
         const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
@@ -72,12 +79,6 @@ exports.handler = async (event) => {
         const s3 = new S3Client({});
         const ddb = new DynamoDBClient({});
         const docClient = DynamoDBDocumentClient.from(ddb);
-
-        const CORS_HEADERS = {
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "OPTIONS,POST,GET",
-            "Access-Control-Allow-Headers": "Content-Type,Authorization"
-        };
 
         // Handle OPTIONS preflight request
         if (event.httpMethod === 'OPTIONS') {
