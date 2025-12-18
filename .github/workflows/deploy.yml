@@ -169,10 +169,23 @@ jobs:
             --function-name "ResumeForge-prod-resume-upload"
 
           echo "Updating 'prod' alias to \$LATEST..."
-          aws lambda update-alias \
-            --function-name "ResumeForge-prod-resume-upload" \
-            --name "prod" \
-            --function-version "\$LATEST"
+          
+          # Check if alias exists
+          if aws lambda get-alias --function-name "ResumeForge-prod-resume-upload" --name "prod" --region ap-south-1 >/dev/null 2>&1; then
+            echo "Alias 'prod' exists. Updating..."
+            aws lambda update-alias \
+              --function-name "ResumeForge-prod-resume-upload" \
+              --name "prod" \
+              --function-version "\$LATEST" \
+              --region ap-south-1
+          else
+            echo "Alias 'prod' does not exist. Creating..."
+            aws lambda create-alias \
+              --function-name "ResumeForge-prod-resume-upload" \
+              --name "prod" \
+              --function-version "\$LATEST" \
+              --region ap-south-1
+          fi
 
           echo "Updating ResumeForge-prod-cv-extractor..."
           
