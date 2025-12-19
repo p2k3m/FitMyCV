@@ -360,6 +360,65 @@ jobs:
             --environment "Variables={STATE_MACHINE_ARN=arn:aws:states:ap-south-1:957650740525:stateMachine:ResumeForge-resume-flow}" \
             --region ap-south-1
 
+      - name: Verify Stream Processor Connection
+        env:
+          AWS_DEFAULT_REGION: ap-south-1
+        run: |
+          set -euo pipefail
+          echo "Verifying Stream Processor Configuration..."
+          
+          FUNCTION_NAME="ResumeForge-DynamoDBStreamProcessor"
+          TABLE_NAME="ResumeForgeLogs"
+          
+          # 1. Check Event Source Mapping State
+          echo "Checking Event Source Mapping State..."
+          aws lambda list-event-source-mappings \
+            --function-name "$FUNCTION_NAME" \
+            --region ap-south-1 \
+            --query "EventSourceMappings[*].{UUID:UUID, State:State, LastProcessingResult:LastProcessingResult}" \
+            --output table
+            
+          # 2. Test Invocation (Dry Run)
+          echo "Invoking Lambda with Test Event (Dry Run)..."
+          
+          # Construct a minimal DynamoDB Stream INSERT event
+          cat > /tmp/test-event.json << 'EOF'
+          {
+            "Records": [
+              {
+                "eventID": "test-123456",
+                "eventName": "INSERT",
+                "eventSource": "aws:dynamodb",
+                "awsRegion": "ap-south-1",
+                "dynamodb": {
+                  "NewImage": {
+                    "jobId": {"S": "TEST_VERIFY_PIPELINE"},
+                    "status": {"S": "uploaded"},
+                    "description": {"S": "This is a dry-run verification from CI/CD"}
+                  }
+                }
+              }
+            ]
+          }
+          EOF
+          
+          # Invoke and capture logs (Tail)
+          aws lambda invoke \
+            --function-name "$FUNCTION_NAME" \
+            --region ap-south-1 \
+            --payload fileb:///tmp/test-event.json \
+            --log-type Tail \
+            /tmp/response.json > /tmp/invoke_result.json
+            
+          echo "Invocation Response:"
+          cat /tmp/response.json
+          
+          echo "Invocation Logs:"
+          # Extract LogResult, remove quotes, decode base64
+          jq -r '.LogResult' /tmp/invoke_result.json | base64 --decode
+          
+          echo "Verification Complete."
+
       - name: Update Workflow Lambda IAM Permissions
         env:
           AWS_DEFAULT_REGION: ap-south-1
