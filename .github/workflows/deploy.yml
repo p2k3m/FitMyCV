@@ -66,25 +66,42 @@ jobs:
         run: |
           set -euo pipefail
 
-          ensure_bucket() {
-            local bucket="$1"
-
-            if aws s3api head-bucket --bucket "$bucket" 2>/dev/null; then
-              echo "Bucket $bucket already exists"
-              return
-            fi
-
-            if [ "$AWS_REGION" = "us-east-1" ]; then
-              aws s3api create-bucket --bucket "$bucket"
-            else
-              aws s3api create-bucket --bucket "$bucket" --create-bucket-configuration "LocationConstraint=$AWS_REGION"
-            fi
-
-            echo "Created bucket $bucket"
+          
+          retry_create_bucket() {
+            local bucket=$1
+            local attempts=0
+            local max_attempts=5
+            
+            while [ $attempts -lt $max_attempts ]; do
+              if aws s3api head-bucket --bucket "$bucket" 2>/dev/null; then
+                echo "Bucket $bucket already exists"
+                return 0
+              fi
+              
+              echo "Attempting to create bucket $bucket (Attempt $((attempts+1)))..."
+              
+              if [ "$AWS_REGION" = "us-east-1" ]; then
+                 CMD="aws s3api create-bucket --bucket $bucket"
+              else
+                 CMD="aws s3api create-bucket --bucket $bucket --create-bucket-configuration LocationConstraint=$AWS_REGION"
+              fi
+              
+              if $CMD 2>/tmp/create_err; then
+                echo "Created bucket $bucket"
+                return 0
+              else
+                echo "Creation failed:"
+                cat /tmp/create_err
+                echo "Waiting for pending deletions/consistency..."
+                sleep 10
+                attempts=$((attempts+1))
+              fi
+            done
+            return 1
           }
 
-          ensure_bucket "$FRONTEND_BUCKET"
-          ensure_bucket "$DEPLOY_BUCKET"
+          retry_create_bucket "$FRONTEND_BUCKET"
+          retry_create_bucket "$DEPLOY_BUCKET"
 
           {
             echo "FRONTEND_BUCKET=$FRONTEND_BUCKET"
