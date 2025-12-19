@@ -54,22 +54,27 @@ function parseMultipart(body, headers) {
     return parts;
 }
 
+const CORS_HEADERS = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "OPTIONS,POST,GET",
+    "Access-Control-Allow-Headers": "Content-Type,Authorization"
+};
+
 exports.handler = async (event) => {
-    console.log('Upload Handler Event:', JSON.stringify({
-        httpMethod: event.httpMethod,
-        path: event.path,
-        headers: event.headers,
-        requestContext: event.requestContext
-    }));
-
-    // Define CORS headers globally for the handler scope
-    const CORS_HEADERS = {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "OPTIONS,POST,GET",
-        "Access-Control-Allow-Headers": "Content-Type,Authorization"
-    };
-
+    // Top-level try-catch to ensure we NEVER crash without a response (avoids 502)
     try {
+        // Validation: Verify event exists
+        if (!event) {
+            throw new Error('Event object is null or undefined');
+        }
+
+        console.log('Upload Handler Event:', JSON.stringify({
+            httpMethod: event.httpMethod,
+            path: event.path,
+            headers: event.headers, // headers might be undefined if called directly
+            requestContext: event.requestContext
+        }));
+
         // ULTRA LAZY LOAD: Require EVERYTHING inside the handler.
         const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
         const { DynamoDBClient } = require("@aws-sdk/client-dynamodb");
@@ -133,7 +138,22 @@ exports.handler = async (event) => {
         }
 
         // Route: POST /api/process-cv
+        // Validation: Check for body
+        if (!event.body) {
+            return {
+                statusCode: 400,
+                headers: CORS_HEADERS,
+                body: JSON.stringify({ success: false, error: 'Missing request body' })
+            };
+        }
+
         const bodyContent = event.isBase64Encoded ? Buffer.from(event.body, 'base64') : event.body;
+
+        // Validation: Headers must exist for multipart parsing
+        if (!event.headers) {
+            throw new Error('Missing headers in event');
+        }
+
         const parts = parseMultipart(bodyContent, event.headers);
 
         const resumePart = parts.find(p => p.name === 'resume');
