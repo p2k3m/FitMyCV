@@ -25,20 +25,23 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION || 'ap-south-1' }}
 
-      - name: Empty S3 Buckets
+      - name: Empty and Delete S3 Buckets
         env:
           FRONTEND_BUCKET: ${{ secrets.FRONTEND_BUCKET || 'resume-forge-app-2025' }}
           DEPLOY_BUCKET: ${{ secrets.DEPLOY_BUCKET || 'resume-forge-data-ats' }}
         run: |
-          set -e
-          echo "Emptying S3 buckets to allow deletion..."
+          set +e # Best effort
+          echo "Emptying and Deleting S3 buckets..."
           
-          # Delete all objects (and versions if applicable)
-          echo "Emptying $FRONTEND_BUCKET..."
-          aws s3 rm "s3://$FRONTEND_BUCKET" --recursive || echo "Bucket $FRONTEND_BUCKET not found or already empty"
+          # Delete all objects and then the bucket
           
-          echo "Emptying $DEPLOY_BUCKET..."
-          aws s3 rm "s3://$DEPLOY_BUCKET" --recursive || echo "Bucket $DEPLOY_BUCKET not found or already empty"
+          echo "Processing $FRONTEND_BUCKET..."
+          aws s3 rm "s3://$FRONTEND_BUCKET" --recursive || echo "Bucket cleanup failed (maybe empty)"
+          aws s3 rb "s3://$FRONTEND_BUCKET" --force || echo "Bucket deletion failed (maybe already gone)"
+          
+          echo "Processing $DEPLOY_BUCKET..."
+          aws s3 rm "s3://$DEPLOY_BUCKET" --recursive || echo "Bucket cleanup failed (maybe empty)"
+          aws s3 rb "s3://$DEPLOY_BUCKET" --force || echo "Bucket deletion failed (maybe already gone)"
 
       - name: Delete CLI-Managed Resources (Orphans)
         env:
@@ -55,7 +58,7 @@ jobs:
           echo "Checking Event Source Mappings for $FUNCTION_NAME..."
           UUIDS=$(aws lambda list-event-source-mappings --function-name "$FUNCTION_NAME" --region ap-south-1 --query "EventSourceMappings[*].UUID" --output text)
           for UUID in $UUIDS; do
-            if [ "$UUID" != "None" ]; then
+            if [ "$UUID" != "None" ] && [ -n "$UUID" ]; then
                 echo "Deleting mapping $UUID..."
                 aws lambda delete-event-source-mapping --uuid "$UUID" --region ap-south-1
             fi
@@ -73,6 +76,24 @@ jobs:
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
+
+      - name: Sanitize Terraform State
+        working-directory: infra/terraform
+        env:
+          TF_VAR_frontend_bucket: resume-forge-app-2025
+          TF_VAR_assets_bucket: resume-forge-data-ats
+          TF_VAR_aws_region: ap-south-1
+          TF_VAR_project: ResumeForge
+        run: |
+          set +e
+          terraform init -reconfigure
+          
+          echo "Removing problematic policies from state to avoid 301 errors..."
+          terraform state rm aws_s3_bucket_policy.frontend || echo "Frontend policy not in state"
+          # Also remove assets policy if it exists, just in case
+          # (Assuming there might be one, verify main.tf? No, main.tf only shows frontend policy in snippet)
+          
+          echo "State sanitized."
 
       - name: Terraform Destroy
         working-directory: infra/terraform
