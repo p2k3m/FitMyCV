@@ -417,7 +417,32 @@ jobs:
           # Extract LogResult, remove quotes, decode base64
           jq -r '.LogResult' /tmp/invoke_result.json | base64 --decode
           
+          
           echo "Verification Complete."
+
+          # 3. Dump Recent CloudWatch Logs (The "Smoking Gun")
+          echo "Dumping recent logs from CloudWatch..."
+          # Get the latest log stream
+          LOG_STREAM=$(aws logs describe-log-streams \
+            --log-group-name "/aws/lambda/$FUNCTION_NAME" \
+            --region ap-south-1 \
+            --order-by LastEventTime \
+            --descending \
+            --limit 1 \
+            --query "logStreams[0].logStreamName" \
+            --output text)
+            
+          if [ "$LOG_STREAM" != "None" ] && [ -n "$LOG_STREAM" ]; then
+             echo "Fetching logs from stream: $LOG_STREAM"
+             aws logs get-log-events \
+               --log-group-name "/aws/lambda/$FUNCTION_NAME" \
+               --log-stream-name "$LOG_STREAM" \
+               --region ap-south-1 \
+               --query "events[*].message" \
+               --output text
+          else
+             echo "No log streams found."
+          fi
 
       - name: Update Workflow Lambda IAM Permissions
         env:
