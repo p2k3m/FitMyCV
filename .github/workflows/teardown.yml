@@ -25,57 +25,19 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION || 'ap-south-1' }}
 
-      - name: Empty and Delete S3 Buckets
+      - name: Ensure Buckets Exist (Fix for Terraform Data Sources)
         env:
           FRONTEND_BUCKET: ${{ secrets.FRONTEND_BUCKET || 'resume-forge-app-2025' }}
           DEPLOY_BUCKET: ${{ secrets.DEPLOY_BUCKET || 'resume-forge-data-ats' }}
+          AWS_DEFAULT_REGION: ap-south-1
         run: |
-          set +e # Best effort
-          echo "Emptying and Deleting S3 buckets..."
+          set +e
+          echo "Temporarily recreating buckets if missing to satisfy Terraform data sources..."
           
-          # Delete all objects and then the bucket
+          aws s3 ls "s3://$FRONTEND_BUCKET" >/dev/null 2>&1 || aws s3 mb "s3://$FRONTEND_BUCKET" --region ap-south-1
+          aws s3 ls "s3://$DEPLOY_BUCKET" >/dev/null 2>&1 || aws s3 mb "s3://$DEPLOY_BUCKET" --region ap-south-1
           
-          echo "Processing $FRONTEND_BUCKET..."
-          aws s3 rm "s3://$FRONTEND_BUCKET" --recursive || echo "Bucket cleanup failed (maybe empty)"
-          aws s3 rb "s3://$FRONTEND_BUCKET" --force || echo "Bucket deletion failed (maybe already gone)"
-          
-          echo "Processing $DEPLOY_BUCKET..."
-          aws s3 rm "s3://$DEPLOY_BUCKET" --recursive || echo "Bucket cleanup failed (maybe empty)"
-          aws s3 rb "s3://$DEPLOY_BUCKET" --force || echo "Bucket deletion failed (maybe already gone)"
-
-      - name: Delete CLI-Managed Resources (Orphans)
-        env:
-           AWS_DEFAULT_REGION: ap-south-1
-        run: |
-          set +e # Don't exit on error if resource is already gone
-          
-          FUNCTION_NAME="ResumeForge-DynamoDBStreamProcessor"
-          TABLE_NAME="ResumeForgeLogs"
-          
-          echo "Cleaning up manual resources..."
-          
-          # 1. Delete Event Source Mappings
-          echo "Checking Event Source Mappings for $FUNCTION_NAME..."
-          UUIDS=$(aws lambda list-event-source-mappings --function-name "$FUNCTION_NAME" --region ap-south-1 --query "EventSourceMappings[*].UUID" --output text)
-          for UUID in $UUIDS; do
-            if [ "$UUID" != "None" ] && [ -n "$UUID" ]; then
-                echo "Deleting mapping $UUID..."
-                aws lambda delete-event-source-mapping --uuid "$UUID" --region ap-south-1
-            fi
-          done
-          
-          # 2. Delete Lambda Function
-          echo "Deleting function $FUNCTION_NAME..."
-          aws lambda delete-function --function-name "$FUNCTION_NAME" --region ap-south-1 || echo "Function already deleted"
-          
-          # 3. Delete DynamoDB Table (Force delete if TF state doesn't have it)
-          echo "Deleting table $TABLE_NAME..."
-          aws dynamodb delete-table --table-name "$TABLE_NAME" --region ap-south-1 || echo "Table already deleted"
-          
-          echo "Manual cleanup complete."
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
+          echo "Buckets checked/created."
 
       - name: Sanitize Terraform State
         working-directory: infra/terraform
@@ -90,10 +52,35 @@ jobs:
           
           echo "Removing problematic policies from state to avoid 301 errors..."
           terraform state rm aws_s3_bucket_policy.frontend || echo "Frontend policy not in state"
-          # Also remove assets policy if it exists, just in case
-          # (Assuming there might be one, verify main.tf? No, main.tf only shows frontend policy in snippet)
+          # Also remove assets policy if it exists
+          terraform state rm aws_s3_bucket_policy.assets || echo "Assets policy not in state"
           
           echo "State sanitized."
+
+      - name: Delete CLI-Managed Resources (Orphans)
+        env:
+           AWS_DEFAULT_REGION: ap-south-1
+        run: |
+          set +e 
+          
+          FUNCTION_NAME="ResumeForge-DynamoDBStreamProcessor"
+          TABLE_NAME="ResumeForgeLogs"
+          
+          echo "Cleaning up manual resources..."
+          
+          # 1. Delete Event Source Mappings
+          UUIDS=$(aws lambda list-event-source-mappings --function-name "$FUNCTION_NAME" --region ap-south-1 --query "EventSourceMappings[*].UUID" --output text)
+          for UUID in $UUIDS; do
+            if [ "$UUID" != "None" ] && [ -n "$UUID" ]; then
+                aws lambda delete-event-source-mapping --uuid "$UUID" --region ap-south-1
+            fi
+          done
+          
+          # 2. Delete Lambda Function
+          aws lambda delete-function --function-name "$FUNCTION_NAME" --region ap-south-1 || echo "Function already deleted"
+          
+          # 3. Delete DynamoDB Table
+          aws dynamodb delete-table --table-name "$TABLE_NAME" --region ap-south-1 || echo "Table already deleted"
 
       - name: Terraform Destroy
         working-directory: infra/terraform
@@ -105,3 +92,20 @@ jobs:
         run: |
           terraform init
           terraform destroy -auto-approve
+
+      - name: Final S3 Cleanup
+        env:
+          FRONTEND_BUCKET: ${{ secrets.FRONTEND_BUCKET || 'resume-forge-app-2025' }}
+          DEPLOY_BUCKET: ${{ secrets.DEPLOY_BUCKET || 'resume-forge-data-ats' }}
+        run: |
+          set +e
+          echo "Performing final S3 cleanup..."
+          
+          # Delete all objects and then the bucket
+          echo "Deleting $FRONTEND_BUCKET..."
+          aws s3 rm "s3://$FRONTEND_BUCKET" --recursive
+          aws s3 rb "s3://$FRONTEND_BUCKET" --force
+          
+          echo "Deleting $DEPLOY_BUCKET..."
+          aws s3 rm "s3://$DEPLOY_BUCKET" --recursive
+          aws s3 rb "s3://$DEPLOY_BUCKET" --force
