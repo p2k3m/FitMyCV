@@ -34,10 +34,34 @@ jobs:
           set +e
           echo "Temporarily recreating buckets if missing to satisfy Terraform data sources..."
           
-          aws s3 ls "s3://$FRONTEND_BUCKET" >/dev/null 2>&1 || aws s3 mb "s3://$FRONTEND_BUCKET" --region ap-south-1
-          aws s3 ls "s3://$DEPLOY_BUCKET" >/dev/null 2>&1 || aws s3 mb "s3://$DEPLOY_BUCKET" --region ap-south-1
+          retry_create_bucket() {
+            local bucket=$1
+            local attempts=0
+            local max_attempts=5
+            
+            while [ $attempts -lt $max_attempts ]; do
+              if aws s3 ls "s3://$bucket" >/dev/null 2>&1; then
+                echo "Bucket $bucket exists."
+                return 0
+              fi
+              
+              echo "Attempting to create bucket $bucket (Attempt $((attempts+1)))..."
+              if aws s3 mb "s3://$bucket" --region ap-south-1; then
+                echo "Bucket $bucket created."
+                return 0
+              else
+                echo "Creation failed. Waiting for pending deletions/consistency..."
+                sleep 10
+                attempts=$((attempts+1))
+              fi
+            done
+            return 1
+          }
+
+          retry_create_bucket "$FRONTEND_BUCKET" || echo "WARNING: Failed to recreate $FRONTEND_BUCKET for TF state"
+          retry_create_bucket "$DEPLOY_BUCKET" || echo "WARNING: Failed to recreate $DEPLOY_BUCKET for TF state"
           
-          echo "Buckets checked/created."
+          echo "Buckets checked/attempted."
 
       - name: Sanitize Terraform State
         working-directory: infra/terraform
