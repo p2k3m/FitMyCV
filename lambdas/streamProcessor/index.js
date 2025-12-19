@@ -1,101 +1,92 @@
-const { SFNClient, StartExecutionCommand } = require('@aws-sdk/client-sfn');
-const { unmarshall } = require('@aws-sdk/util-dynamodb');
-
-const sfnClient = new SFNClient({ region: process.env.AWS_REGION || 'ap-south-1' });
-const STATE_MACHINE_ARN = process.env.STATE_MACHINE_ARN ||
-    'arn:aws:states:ap-south-1:957650740525:stateMachine:ResumeForge-resume-flow';
-
 exports.handler = async (event, context) => {
-    console.log('DynamoDB Stream event received', {
-        recordCount: event.Records.length,
-        requestId: context.requestId
-    });
-
-    for (const record of event.Records) {
-        try {
-            await processRecord(record);
-        } catch (error) {
-            console.error('Failed to process record', {
-                eventID: record.eventID,
-                error: error.message,
-                stack: error.stack
-            });
-            // Don't throw - process other records even if one fails
+    // Robust logging at start
+    console.log('Stream Processor Started', {
+        requestId: context.requestId,
+        env: {
+            AWS_REGION: process.env.AWS_REGION,
+            STATE_MACHINE_ARN: process.env.STATE_MACHINE_ARN
         }
-    }
-};
-
-async function processRecord(record) {
-    // Process INSERT and MODIFY events
-    if (record.eventName !== 'INSERT' && record.eventName !== 'MODIFY') {
-        console.log('Skipping non-INSERT/MODIFY event', {
-            eventName: record.eventName,
-            eventID: record.eventID
-        });
-        return;
-    }
-
-    if (!record.dynamodb?.NewImage) {
-        console.warn('No NewImage in record', { eventID: record.eventID });
-        return;
-    }
-
-    // Unmarshal DynamoDB record
-    const newItem = unmarshall(record.dynamodb.NewImage);
-
-    // Only trigger for jobs with status 'uploaded'
-    if (newItem.status !== 'uploaded') {
-        console.log('Skipping job with non-uploaded status', {
-            jobId: newItem.jobId,
-            status: newItem.status
-        });
-        return;
-    }
-
-    console.log('Processing new job', {
-        jobId: newItem.jobId,
-        status: newItem.status,
-        hasJobDescription: !!newItem.jobDescription,
-        itemKeys: Object.keys(newItem),
-        newItemString: JSON.stringify(newItem)
     });
-
-    // Prepare Step Function input
-    const input = {
-        jobId: newItem.jobId,
-        resumePath: newItem.resumePath || newItem.key || newItem.s3Key || '',
-        jobDescription: newItem.jobDescription || newItem.sessionInputs?.jobDescription || '',
-        jobSkills: newItem.jobSkills || [],
-        manualCertificates: newItem.manualCertificates || [],
-        targetTitle: newItem.targetTitle || 'General Application',
-        bucket: newItem.bucket || newItem.s3Bucket || process.env.S3_BUCKET || 'resume-forge-data-ats',
-        requestId: newItem.requestId || newItem.jobId
-    };
-
-    // Generate unique execution name
-    const executionName = `job-${newItem.jobId}-${Date.now()}`;
 
     try {
-        const command = new StartExecutionCommand({
-            stateMachineArn: STATE_MACHINE_ARN,
-            name: executionName,
-            input: JSON.stringify(input)
-        });
+        // Safe Import Pattern: Prevent cold-start crashes from hiding logs
+        const { SFNClient, StartExecutionCommand } = require('@aws-sdk/client-sfn');
+        const { unmarshall } = require('@aws-sdk/util-dynamodb');
 
-        const result = await sfnClient.send(command);
+        const region = process.env.AWS_REGION || 'ap-south-1';
+        const sfnClient = new SFNClient({ region: region });
 
-        console.log('Step Function execution started', {
-            jobId: newItem.jobId,
-            executionArn: result.executionArn,
-            executionName
+        // Use provided env var or fallback to known hardcoded global
+        const STATE_MACHINE_ARN = process.env.STATE_MACHINE_ARN ||
+            'arn:aws:states:ap-south-1:957650740525:stateMachine:ResumeForge-resume-flow';
+
+        console.log('Configuration Loaded', { region, STATE_MACHINE_ARN });
+
+        for (const record of event.Records) {
+            try {
+                // Process logic inline to access scope
+                if (record.eventName !== 'INSERT' && record.eventName !== 'MODIFY') {
+                    console.log('Skipping event type:', record.eventName);
+                    continue;
+                }
+
+                if (!record.dynamodb || !record.dynamodb.NewImage) {
+                    console.warn('Missing DynamoDB Image', record.eventID);
+                    continue;
+                }
+
+                const newItem = unmarshall(record.dynamodb.NewImage);
+
+                // Strict check for "uploaded" status
+                if (newItem.status !== 'uploaded') {
+                    console.log('Skipping status:', newItem.status, 'JobId:', newItem.jobId);
+                    continue;
+                }
+
+                console.log('Processing Job:', newItem.jobId);
+
+                const input = {
+                    jobId: newItem.jobId,
+                    resumePath: newItem.resumePath || newItem.key || newItem.s3Key || '',
+                    jobDescription: newItem.jobDescription || newItem.sessionInputs?.jobDescription || '',
+                    jobSkills: newItem.jobSkills || [],
+                    manualCertificates: newItem.manualCertificates || [],
+                    targetTitle: newItem.targetTitle || 'General Application',
+                    bucket: newItem.bucket || newItem.s3Bucket || process.env.S3_BUCKET || 'resume-forge-data-ats',
+                    requestId: newItem.requestId || newItem.jobId
+                };
+
+                const executionName = `job-${newItem.jobId}-${Date.now()}`;
+
+                const command = new StartExecutionCommand({
+                    stateMachineArn: STATE_MACHINE_ARN,
+                    name: executionName,
+                    input: JSON.stringify(input)
+                });
+
+                const result = await sfnClient.send(command);
+                console.log('SUCCESS: Step Function Started', {
+                    executionArn: result.executionArn,
+                    jobId: newItem.jobId
+                });
+
+            } catch (recordError) {
+                console.error('Record Processing Error', {
+                    error: recordError.message,
+                    stack: recordError.stack,
+                    record: JSON.stringify(record)
+                });
+                // Note: We swallow individual record errors to avoid blocking the whole batch,
+                // BUT in a strict system we might want to rethrow. 
+                // For now, logging is priority.
+            }
+        }
+
+    } catch (globalError) {
+        console.error('FATAL: Stream Processor Crash', {
+            error: globalError.message,
+            stack: globalError.stack
         });
-    } catch (error) {
-        console.error('Failed to start Step Function execution', {
-            jobId: newItem.jobId,
-            error: error.message,
-            errorCode: error.name,
-            stack: error.stack
-        });
-        throw error; // Re-throw to mark as failed in DynamoDB Streams
+        throw globalError; // Ensure Lambda service knows it failed
     }
-}
+};
