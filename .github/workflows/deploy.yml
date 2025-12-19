@@ -70,7 +70,7 @@ jobs:
           retry_create_bucket() {
             local bucket=$1
             local attempts=0
-            local max_attempts=5
+            local max_attempts=20
             
             while [ $attempts -lt $max_attempts ]; do
               if aws s3api head-bucket --bucket "$bucket" 2>/dev/null; then
@@ -92,8 +92,8 @@ jobs:
               else
                 echo "Creation failed:"
                 cat /tmp/create_err
-                echo "Waiting for pending deletions/consistency..."
-                sleep 10
+                echo "Waiting 15s for pending deletions/consistency..."
+                sleep 15
                 attempts=$((attempts+1))
               fi
             done
