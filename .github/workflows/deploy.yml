@@ -444,6 +444,31 @@ jobs:
              echo "No log streams found."
           fi
 
+          
+          # Dump Resume Upload Logs too
+          UPLOAD_FUNC="ResumeForge-prod-resume-upload"
+          echo "Dumping recent logs for $UPLOAD_FUNC..."
+          LOG_STREAM_UL=$(aws logs describe-log-streams \
+            --log-group-name "/aws/lambda/$UPLOAD_FUNC" \
+            --region ap-south-1 \
+            --order-by LastEventTime \
+            --descending \
+            --limit 1 \
+            --query "logStreams[0].logStreamName" \
+            --output text)
+            
+          if [ "$LOG_STREAM_UL" != "None" ] && [ -n "$LOG_STREAM_UL" ]; then
+             echo "Fetching logs from stream: $LOG_STREAM_UL"
+             aws logs get-log-events \
+               --log-group-name "/aws/lambda/$UPLOAD_FUNC" \
+               --log-stream-name "$LOG_STREAM_UL" \
+               --region ap-south-1 \
+               --query "events[*].message" \
+               --output text
+          else
+             echo "No log streams found for upload lambda."
+          fi
+
       - name: Update Workflow Lambda IAM Permissions
         env:
           AWS_DEFAULT_REGION: ap-south-1
@@ -506,6 +531,8 @@ jobs:
             --region ap-south-1 \
             --function-name ResumeForge-prod-resume-upload \
             --handler index.handler \
+            --timeout 15 \
+            --memory-size 256 \
             --environment "Variables={
               S3_BUCKET=resume-forge-data-ats,
               STAGE_NAME=prod,
