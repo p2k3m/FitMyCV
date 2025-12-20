@@ -31,13 +31,13 @@ variable "domain_name" {
 variable "frontend_bucket" {
   description = "Name of the existing frontend bucket"
   type        = string
-  default     = "fitmycv-frontend"
+  default     = "resume-forge-app-v2-2025"
 }
 
 variable "assets_bucket" {
   description = "Name of the existing assets bucket"
   type        = string
-  default     = "fitmycv-assets"
+  default     = "resume-forge-data-v2-ats"
 }
 
 data "aws_s3_bucket" "frontend" {
