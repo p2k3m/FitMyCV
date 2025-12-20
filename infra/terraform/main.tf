@@ -40,14 +40,6 @@ variable "assets_bucket" {
   default     = "resume-forge-data-v2-ats"
 }
 
-data "aws_s3_bucket" "frontend" {
-  bucket = var.frontend_bucket
-}
-
-data "aws_s3_bucket" "assets" {
-  bucket = var.assets_bucket
-}
-
 resource "aws_cloudfront_origin_access_control" "frontend" {
   name                              = "${var.frontend_bucket}-oac"
   description                       = "Origin access control for the frontend bucket"
@@ -68,7 +60,7 @@ data "aws_iam_policy_document" "frontend_bucket" {
       identifiers = ["cloudfront.amazonaws.com"]
     }
 
-    resources = ["${data.aws_s3_bucket.frontend.arn}/*"]
+    resources = ["arn:aws:s3:::${var.frontend_bucket}/*"]
 
     condition {
       test     = "StringEquals"
@@ -88,7 +80,7 @@ data "aws_iam_policy_document" "frontend_bucket" {
       identifiers = ["cloudfront.amazonaws.com"]
     }
 
-    resources = [data.aws_s3_bucket.frontend.arn]
+    resources = ["arn:aws:s3:::${var.frontend_bucket}"]
 
     condition {
       test     = "StringEquals"
@@ -99,7 +91,7 @@ data "aws_iam_policy_document" "frontend_bucket" {
 }
 
 resource "aws_s3_bucket_policy" "frontend" {
-  bucket = data.aws_s3_bucket.frontend.id
+  bucket = var.frontend_bucket
   policy = data.aws_iam_policy_document.frontend_bucket.json
 }
 
@@ -109,7 +101,7 @@ resource "aws_cloudfront_distribution" "cdn" {
   default_root_object = "index.html"
 
   origin {
-    domain_name = data.aws_s3_bucket.frontend.bucket_regional_domain_name
+    domain_name = "${var.frontend_bucket}.s3.${var.aws_region}.amazonaws.com"
     origin_id   = "frontend"
 
     # When using an origin access control, CloudFront still requires an

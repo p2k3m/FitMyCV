@@ -25,44 +25,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION || 'ap-south-1' }}
 
-      - name: Ensure Buckets Exist (Fix for Terraform Data Sources)
-        env:
-          FRONTEND_BUCKET: 'resume-forge-app-v2-2025'
-          DEPLOY_BUCKET: 'resume-forge-data-v2-ats'
-          AWS_DEFAULT_REGION: ap-south-1
-        run: |
-          set +e
-          echo "Temporarily recreating buckets if missing to satisfy Terraform data sources..."
           
-          retry_create_bucket() {
-            local bucket=$1
-            local attempts=0
-            local max_attempts=20
-            
-            while [ $attempts -lt $max_attempts ]; do
-              if aws s3 ls "s3://$bucket" >/dev/null 2>&1; then
-                echo "Bucket $bucket exists."
-                return 0
-              fi
-              
-              echo "Attempting to create bucket $bucket (Attempt $((attempts+1)))..."
-              if aws s3 mb "s3://$bucket" --region ap-south-1; then
-                echo "Bucket $bucket created."
-                return 0
-              else
-                echo "Creation failed. Waiting 15s for pending deletions/consistency..."
-                sleep 15
-                attempts=$((attempts+1))
-              fi
-            done
-            return 1
-          }
-
-          retry_create_bucket "$FRONTEND_BUCKET" || echo "WARNING: Failed to recreate $FRONTEND_BUCKET for TF state"
-          retry_create_bucket "$DEPLOY_BUCKET" || echo "WARNING: Failed to recreate $DEPLOY_BUCKET for TF state"
-          
-          echo "Buckets checked/attempted."
-
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
 
