@@ -63,11 +63,14 @@ jobs:
           
           echo "Buckets checked/attempted."
 
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
       - name: Sanitize Terraform State
         working-directory: infra/terraform
         env:
-          TF_VAR_frontend_bucket: resume-forge-app-2025
-          TF_VAR_assets_bucket: resume-forge-data-ats
+          TF_VAR_frontend_bucket: resume-forge-app-v2-2025
+          TF_VAR_assets_bucket: resume-forge-data-v2-ats
           TF_VAR_aws_region: ap-south-1
           TF_VAR_project: ResumeForge
         run: |
@@ -109,8 +112,8 @@ jobs:
       - name: Terraform Destroy
         working-directory: infra/terraform
         env:
-          TF_VAR_frontend_bucket: resume-forge-app-2025
-          TF_VAR_assets_bucket: resume-forge-data-ats
+          TF_VAR_frontend_bucket: resume-forge-app-v2-2025
+          TF_VAR_assets_bucket: resume-forge-data-v2-ats
           TF_VAR_aws_region: ap-south-1
           TF_VAR_project: ResumeForge
         run: |
