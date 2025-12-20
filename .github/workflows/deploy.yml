@@ -60,8 +60,8 @@ jobs:
 
       - name: Ensure deployment buckets exist
         env:
-          FRONTEND_BUCKET: ${{ secrets.FRONTEND_BUCKET || 'resume-forge-app-v2-2025' }}
-          DEPLOY_BUCKET: ${{ secrets.DEPLOY_BUCKET || 'resume-forge-data-v2-ats' }}
+          FRONTEND_BUCKET: 'resume-forge-app-v2-2025'
+          DEPLOY_BUCKET: 'resume-forge-data-v2-ats'
           AWS_REGION: ${{ secrets.AWS_REGION || 'ap-south-1' }}
         run: |
           set -euo pipefail

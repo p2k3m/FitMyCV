@@ -27,8 +27,8 @@ jobs:
 
       - name: Ensure Buckets Exist (Fix for Terraform Data Sources)
         env:
-          FRONTEND_BUCKET: ${{ secrets.FRONTEND_BUCKET || 'resume-forge-app-v2-2025' }}
-          DEPLOY_BUCKET: ${{ secrets.DEPLOY_BUCKET || 'resume-forge-data-v2-ats' }}
+          FRONTEND_BUCKET: 'resume-forge-app-v2-2025'
+          DEPLOY_BUCKET: 'resume-forge-data-v2-ats'
           AWS_DEFAULT_REGION: ap-south-1
         run: |
           set +e
@@ -122,8 +122,8 @@ jobs:
 
       - name: Final S3 Cleanup
         env:
-          FRONTEND_BUCKET: ${{ secrets.FRONTEND_BUCKET || 'resume-forge-app-2025' }}
-          DEPLOY_BUCKET: ${{ secrets.DEPLOY_BUCKET || 'resume-forge-data-ats' }}
+          FRONTEND_BUCKET: 'resume-forge-app-v2-2025'
+          DEPLOY_BUCKET: 'resume-forge-data-v2-ats'
         run: |
           set +e
           echo "Performing final S3 cleanup..."
